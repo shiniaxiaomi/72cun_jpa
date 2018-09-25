@@ -1,11 +1,15 @@
 package com.lyj.service;
 
+import com.lyj.dao.URLDao;
+import com.lyj.dao.URLDao;
 import com.lyj.dao.UserDao;
+import com.lyj.entity.URL;
 import com.lyj.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,24 +20,22 @@ import java.util.Optional;
 
 @Transactional //加上事务
 @Service
-public class UserService {
+public class URLService {
 
 
     @Autowired
-    UserDao userDao;
+    URLDao urlDao;
 
 
-    public void saveUser(User user){
-        userDao.save(user);
+    public void saveURL(URL url){
+        urlDao.save(url);
     }
 
-    public User login(User user){
-        List<User> users = userDao.findAll(Example.of(user));
-        if(users.size()==1){
-            return users.get(0);
-        }
+    public List<URL> findAll(User user){
+        URL url=new URL();
+        url.setUser(user);
+        return urlDao.findAll(Example.of(url));
 
-        return null;
     }
 
 

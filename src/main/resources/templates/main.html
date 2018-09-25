@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<h1>主页</h1>
+<h4>${msg!}</h4>
+
+
+<form action="/url/save" method="post">
+    url名称:<input name="urlName"/><br>
+    网址:<input name="url"/><br>
+    <button type="submit">添加网址</button><br>
+</form>
+
+<table>
+    <th>
+        <td>名称:</td>
+        <td>网址:</td>
+    </th>
+
+    <#if urlList??><!-- 判断urlList是否为空 -->
+        <#list urlList as item>
+            <tr>
+                <td>${item.urlName}</td>
+                <td><a href="${item.url}">${item.url}</a></td>
+            </tr>
+        </#list>
+    </#if>
+
+</table>
+
+
+</body>
+</html>

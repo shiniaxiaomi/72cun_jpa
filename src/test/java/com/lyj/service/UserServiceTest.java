@@ -18,9 +18,5 @@ public class UserServiceTest {
     @Autowired
     UserService userService;
 
-    @Test
-    public void insert() throws Exception {
-        userService.insert();
-    }
 
 }
