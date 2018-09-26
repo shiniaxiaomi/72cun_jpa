@@ -1,26 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>72cun</title>
+    <meta name="author" content="网址收藏">
+    <link rel="stylesheet" type="text/css" href="/index/style.css">
+    <style>
+        body{height:100%;background:#16a085;overflow:hidden;}
+        canvas{z-index:-1;position:absolute;}
+    </style>
+
 </head>
-<body>
+<body><canvas class="pg-canvas" width="1920" height="546"></canvas>
+<dl class="admin_login">
+    <dt>
+        <strong style="color: #73bd48">72cun</strong>
+        <em>网址收藏</em>
+    </dt>
 
-<h1>登入页面</h1>
-<h1>${msg!}</h1>
+    <form id="form" action="/user/login" method="post">
+        <dd class="user_icon">
+            <input name="userName" type="text" placeholder="账号" class="login_txtbx userName">
+        </dd>
+        <dd class="pwd_icon">
+            <input name="password" type="password" placeholder="密码" class="login_txtbx password">
+        </dd>
+        <dd>
+            <input type="button" value="登陆" class="submit_btn" id="login">
+        </dd>
+        <dd>
+            <input type="button" value="注册" class="submit_btn" id="registerc">
+        </dd>
+        <div><span style="color: #64d8ff" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${msg!}</span></div>
+    </form>
 
-<form action="/user/save" method="post">
-    userName:<input name="userName"/><br>
-    password:<input name="password"/><br>
-    <button type="submit">注册</button><br>
-</form>
+</dl>
 
 
-<form action="/user/login" method="post">
-    userName:<input name="userName"/><br>
-    password:<input name="password"/><br>
-    <button type="submit">登入</button><br>
-</form>
+<script src="/index/jquery.min.js"></script>
+<script src="/index/Particleground.js"></script>
+<script>
 
-</body>
-</html>
+    $(document).ready(function () {
+        $('body').particleground({
+            dotColor: '#5cbdaa',
+            lineColor: '#5cbdaa'
+        });
+
+        $("#login").click(function () {
+            var txtbx=$('.userName').val();
+            var password=$('.password').val();
+            if(txtbx==""){
+                alert("请输入账号");
+                return;
+            }
+            if(password==""){
+                alert("请输入密码");
+                return;
+            };
+
+            $("#form").submit();
+
+        })
+
+//        var data={
+//            userName:"",
+//            password:""
+//        }
+
+//        $("#login").click(function () {
+//            var txtbx=$('.userName').val();
+//            var password=$('.password').val();
+//            if(txtbx==""){
+//                alert("请输入账号");
+//                return;
+//            }
+//            if(password==""){
+//                alert("请输入密码");
+//                return;
+//            };
+//            data.userName=txtbx;
+//            data.password=password;
+//
+//            $.ajax({
+//                url:'/user/login',
+//                data:data,
+//                dataType:'json',
+//                type:'post',
+//                success:function (data) {
+////                    document.write(data)
+//                    console.dir(data)
+//                }
+//            })
+//        })
+
+        $("#registerc").on("click",function () {
+
+        })
+    })
+
+</script>
+
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--<meta charset="UTF-8">-->
+<!--<title>Title</title>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<h1>登入页面</h1>-->
+<!--<h1>${msg!}</h1>-->
+
+<!--<form action="/user/save" method="post">-->
+<!--userName:<input name="userName"/><br>-->
+<!--password:<input name="password"/><br>-->
+<!--<button type="submit">注册</button><br>-->
+<!--</form>-->
+
+
+<!--<form action="/user/login" method="post">-->
+<!--userName:<input name="userName"/><br>-->
+<!--password:<input name="password"/><br>-->
+<!--<button type="submit">登入</button><br>-->
+<!--</form>-->
+
+<!--</body>-->
+<!--</html>-->

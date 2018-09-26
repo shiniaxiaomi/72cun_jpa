@@ -21,10 +21,10 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         //如果用户没有登入,返回登入页面
-        if(user==null){
-            response.sendRedirect("/index.html");//转发页面
-            return false;
-        }
+//        if(user==null){
+////            response.sendRedirect("/index.html");//转发页面
+//            return false;
+//        }
 
         return true;
     }
