@@ -28,9 +28,13 @@ public class UserService {
     }
 
     public User login(User user){
-        List<User> users = userDao.findAll(Example.of(user));
-        if(users.size()==1){
-            return users.get(0);
+        if(user.getUserName()!=null && user.getPassword()!=null){
+            Optional<User> one = userDao.findOne(Example.of(new User(user.getUserName())));
+            if(one.isPresent()){
+                if(one.get().getPassword().equals(user.getPassword())){
+                    return one.get();
+                }
+            }
         }
 
         return null;

@@ -14,18 +14,22 @@ import javax.servlet.http.HttpSession;
  */
 public class LoginCheckInterceptor implements HandlerInterceptor {
 
-    //在请求前处理
+    /**
+     * 在请求前处理
+     * response.sendRedirect("/index.html");//url: http://localhost:8087/index.html
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         //如果用户没有登入,返回登入页面
-//        if(user==null){
-////            response.sendRedirect("/index.html");//转发页面
-//            return false;
-//        }
+        if(user==null){
+            response.sendRedirect("/");//重新请求到登入页面
 
+            System.out.println("拦截了: "+request.getRequestURL().toString()+" 请求");
+            return false;
+        }
+        System.out.println("通过了: "+request.getRequestURL().toString()+" 请求");
         return true;
     }
 

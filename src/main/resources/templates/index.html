@@ -3,7 +3,7 @@
 
     <title>72cun</title>
     <meta name="author" content="网址收藏">
-    <link rel="stylesheet" type="text/css" href="/index/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/index/style.css">
     <style>
         body{height:100%;background:#16a085;overflow:hidden;}
         canvas{z-index:-1;position:absolute;}
@@ -17,33 +17,46 @@
         <em>网址收藏</em>
     </dt>
 
-    <form id="form" action="/user/login" method="post">
-        <dd class="user_icon">
-            <input name="userName" type="text" placeholder="账号" class="login_txtbx userName">
-        </dd>
-        <dd class="pwd_icon">
-            <input name="password" type="password" placeholder="密码" class="login_txtbx password">
-        </dd>
-        <dd>
-            <input type="button" value="登陆" class="submit_btn" id="login">
-        </dd>
-        <dd>
-            <input type="button" value="注册" class="submit_btn" id="registerc">
-        </dd>
-        <div><span style="color: #64d8ff" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${msg!}</span></div>
-    </form>
+    <dd class="user_icon">
+        <input name="userName" type="text" placeholder="账号" class="login_txtbx userName">
+    </dd>
+    <dd class="pwd_icon">
+        <input name="password" type="password" placeholder="密码" class="login_txtbx password">
+    </dd>
+    <dd>
+        <input type="button" value="登陆" class="submit_btn" id="login">
+    </dd>
+    <dd>
+        <input type="button" value="注册" class="submit_btn" id="registerc">
+    </dd>
+    <div><span style="color: #64d8ff" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span id="message" style="color: #64d8ff" ></span>
+    </div>
 
 </dl>
 
 
-<script src="/index/jquery.min.js"></script>
-<script src="/index/Particleground.js"></script>
+<script src="/static/index/jquery.min.js"></script>
+<script src="/static/index/Particleground.js"></script>
 <script>
 
     $(document).ready(function () {
         $('body').particleground({
             dotColor: '#5cbdaa',
             lineColor: '#5cbdaa'
+        });
+
+        //自动登入试探
+        $.ajax({
+            url:"/user/login",
+            type:'post',
+            dataType:'json',
+            data:{},
+            success:function (data) {
+                if(data.code==200){
+                    window.location.href="/user/main";//url: http://localhost:8087/user/main
+                }
+            }
         });
 
         $("#login").click(function () {
@@ -58,7 +71,23 @@
                 return;
             };
 
-            $("#form").submit();
+
+            $.ajax({
+                url:"/user/login",
+                type:'post',
+                dataType:'json',
+                data:{userName:txtbx,password:password},
+                success:function (data) {
+                    if(data.code==200){
+                        window.location.href="/user/main";//url: http://localhost:8087/user/main
+                    }else if(data.code==400){
+                        //显示错误信息
+                        $("#message").html(data.message);
+                    }
+                }
+            });
+
+//            $("#form").submit();
 
         })
 

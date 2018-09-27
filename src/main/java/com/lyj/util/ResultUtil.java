@@ -8,13 +8,13 @@ import com.lyj.entity.Result;
  */
 public class ResultUtil {
 
+    public static Result success(){
+        return success(null,null);
+    }
+
     //返回成功
     public static Result success(Object data){
-        Result result=new Result();
-        result.setCode(0);
-        result.setMassage("成功");
-        result.setData(data);
-        return result;
+        return success(null,data);
     }
 
     //返回成功
@@ -25,29 +25,36 @@ public class ResultUtil {
     //返回成功
     public static Result success(String message,Object data){
         Result result=new Result();
-        result.setCode(0);
-        result.setMassage("成功:"+message);
+        result.setCode(200);
+        result.setMessage(message);
         result.setData(data);
+        result.setState("成功");
+        return result;
+    }
+
+    //返回失败(封装异常)
+    public static Result error(String message,Object data){
+        Result result=new Result();
+        result.setCode(400);
+        result.setMessage(message);
+        result.setData(data);
+        result.setState("失败");
         return result;
     }
 
     //返回成功
-    public static Result success(){
-        return success(null);
-    }
-
-    //返回失败(封装异常)
-    public static Result error(String massage,Object data){
-        Result result=new Result();
-        result.setCode(1);
-        result.setMassage("失败:"+massage);
-        result.setData(data);
-        return result;
+    public static Result error(String message){
+        return error(message,null);
     }
 
     //返回失败
-    public static Result error(String massage){
-        return error(massage,null);
+    public static Result error(Object data){
+        return error(null,data);
+    }
+
+    //返回成功
+    public static Result error(){
+        return error(null,null);
     }
 
 }

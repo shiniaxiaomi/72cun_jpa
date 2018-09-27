@@ -8,6 +8,7 @@ import com.lyj.service.UserService;
 import com.lyj.util.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
@@ -44,36 +45,42 @@ public class UserController {
         return mv;
     }
 
+    //返回一个Tempalte中的main.html页面
+    @RequestMapping("/main")
+    public String userMain(Model model){
+        model.addAttribute("msg","ssss");
+        return "main";
+    }
+
 
     /**
-     * mv.setViewName("redirect:main");//表示将url重定向到index,即让浏览器重新发起一次/main请求
+     * forward(转发):
+     *      1.表示服务器内部进行的转发,但是浏览器上的网址却没有发生变化
+     *      2.是服务器内部的重定向，服务器直接访问目标地址的 url网址，把里面的东西读取出来，但是客户端并不知道，
+     *        因此用forward的话，客户端浏览器的网址是不会发生变化的。
+     * redirect(重定向):
+     *      1.是客户端的重定向，是完全的跳转。即服务器返回的一个url给客户端浏览器，
+     *        然后客户端浏览器会重新发送一次请求，到新的url里面，因此浏览器中显示的url网址会发生变化。
+     *      2.因为这种方式比forward多了一次网络请求，因此效率会低于forward。
+     *
+     *  mv.setViewName("forward:/index");//url: http://localhost:8087/index
+     *  mv.setViewName("forward:index");//url: http://localhost:8087/user/index    当前路径下的url请求转变
+     *  mv.setViewName("forward:/user/index");//url:mv.setViewName("forward:/user/index");
      */
     @ResponseBody
     @RequestMapping("/login")
-    public ModelAndView login(User user, HttpSession session){
-
-        ModelAndView mv=new ModelAndView();
-
+    public Result login(User user, HttpSession session){
         User sessionUser = (User) session.getAttribute("user");
         if(sessionUser!=null){//说明用户已经存在
-            mv.setViewName("redirect:main");
-            mv.addObject("user",user);
-            return mv;
+            return ResultUtil.success();
         }else{
             User loginedUser = userService.login(user);
             if(loginedUser!=null){
-
-                mv.setViewName("redirect:main");
                 session.setAttribute("user",loginedUser);
-                mv.addObject("user",user);
-                return mv;
+                return ResultUtil.success("登入成功");
             }else{
-                mv.setViewName("forward:index");
-                mv.addObject("msg","用户名或密码错误!");
-                return mv;
+                return ResultUtil.error("用户名或密码错误");
             }
-
         }
-
     }
 }

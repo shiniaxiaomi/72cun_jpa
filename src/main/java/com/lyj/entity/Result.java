@@ -13,17 +13,20 @@ public class Result<T> {
     //错误码
     private Integer code;
     //提示信息
-    private String massage;
+    private String message;
     //具体内容
     private T data;
+    //状态
+    private String state;
 
     public Result() {
     }
 
-    public Result(Integer code, String massage, T data) {
+    public Result(Integer code, String message, T data, String state) {
         this.code = code;
-        this.massage = massage;
+        this.message = message;
         this.data = data;
+        this.state = state;
     }
 
     public Integer getCode() {
@@ -34,12 +37,12 @@ public class Result<T> {
         this.code = code;
     }
 
-    public String getMassage() {
-        return massage;
+    public String getMessage() {
+        return message;
     }
 
-    public void setMassage(String massage) {
-        this.massage = massage;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public T getData() {
@@ -48,5 +51,13 @@ public class Result<T> {
 
     public void setData(T data) {
         this.data = data;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }
