@@ -11,7 +11,7 @@
 <body>
 
 <h1>主页</h1>
-<h4>${msg!}</h4>
+<h4>userName:${user.userName!}</h4>
 
 
 <form action="/url/save" method="post">
@@ -37,6 +37,28 @@
 
 </table>
 
+<button id="exit">退出</button>
+
 
 </body>
 </html>
+
+<script>
+
+    $("#exit").click(function () {
+
+        $.ajax({
+            url:"/user/exit",
+            type:'post',
+            dataType:'json',
+            success:function (data) {
+                if(data.code==200){
+                    window.location.href="/";//url: http://localhost:8087/
+                }else if(data.code==400){
+                    window.location.href="/";
+                }
+            }
+        })
+    })
+
+</script>

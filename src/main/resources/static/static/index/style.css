@@ -52,8 +52,8 @@ small,weak{color:#666}
 .admin_login dt em{display:block;font-size:12px;margin-top:8px;}
 .admin_login dd{margin:5px 0;height:42px;overflow:hidden;position:relative;}
 .admin_login dd .login_txtbx{font-size:14px;height:26px;line-height:26px;padding:8px 5%;width:90%;text-indent:2em;border:none;background:#5cbdaa;color:white;}
-.admin_login dd .login_txtbx::-webkit-input-placeholder {color:#f4f4f4;line-height:inherit;} 
-.admin_login dd .login_txtbx:-moz-placeholder {color:#f4f4f4;line-height:inherit;} 
+.admin_login dd .login_txtbx::-webkit-input-placeholder {color:#f4f4f4;line-height:inherit;}
+.admin_login dd .login_txtbx:-moz-placeholder {color:#f4f4f4;line-height:inherit;}
 .admin_login dd .login_txtbx::-moz-placeholder {color:#f4f4f4;line-height:inherit;}
 .admin_login dd .login_txtbx:focus{background:#55b7a4;}
 .admin_login dd:before{font-family:'adminthemesregular';position:absolute;top:0;left:10px;height:42px;line-height:42px;font-size:20px;color:#0c9076;}

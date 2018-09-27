@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html>
+
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
     <title>72cun</title>
     <meta name="author" content="网址收藏">
@@ -23,21 +25,28 @@
     <dd class="pwd_icon">
         <input name="password" type="password" placeholder="密码" class="login_txtbx password">
     </dd>
-    <dd>
+    <dd id="loginDiv">
         <input type="button" value="登陆" class="submit_btn" id="login">
+        <div style='text-align: center'><span id='registercMessage' style='color: #64d8ff' ></span></div>
     </dd>
     <dd>
         <input type="button" value="注册" class="submit_btn" id="registerc">
     </dd>
-    <div><span style="color: #64d8ff" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-        <span id="message" style="color: #64d8ff" ></span>
-    </div>
+
+    <dd>
+        <input type="button" value="返回" class="submit_btn" id="back" style="display: none">
+        <div style="text-align: center"><span id="message" style="color: #64d8ff" ></span></div>
+    </dd>
+
 
 </dl>
 
+</body>
+</html>
 
-<script src="/static/index/jquery.min.js"></script>
+<script src="/static/jquery.min.js"></script>
 <script src="/static/index/Particleground.js"></script>
+
 <script>
 
     $(document).ready(function () {
@@ -87,44 +96,57 @@
                 }
             });
 
-//            $("#form").submit();
 
         })
 
-//        var data={
-//            userName:"",
-//            password:""
-//        }
-
-//        $("#login").click(function () {
-//            var txtbx=$('.userName').val();
-//            var password=$('.password').val();
-//            if(txtbx==""){
-//                alert("请输入账号");
-//                return;
-//            }
-//            if(password==""){
-//                alert("请输入密码");
-//                return;
-//            };
-//            data.userName=txtbx;
-//            data.password=password;
-//
-//            $.ajax({
-//                url:'/user/login',
-//                data:data,
-//                dataType:'json',
-//                type:'post',
-//                success:function (data) {
-////                    document.write(data)
-//                    console.dir(data)
-//                }
-//            })
-//        })
 
         $("#registerc").on("click",function () {
+            $("#message").empty();
+
+            if($("#login").is(':hidden')){
+                //进行注册
+                var txtbx=$('.userName').val();
+                var password=$('.password').val();
+                if(txtbx==""){
+                    alert("请输入账号");
+                    return;
+                }
+                if(password==""){
+                    alert("请输入密码");
+                    return;
+                };
+
+                $.ajax({
+                    url:"/user/save",
+                    type:'post',
+                    dataType:'json',
+                    data:{userName:txtbx,password:password},
+                    success:function (data) {
+                        if(data.code==200){//
+                            $("#back").click();//注册成功后,返回登入按钮
+                            alert("注册成功!");
+                        }else if(data.code==400){
+                            //显示错误信息
+                            $("#registercMessage").html(data.message);
+                        }
+                    }
+                });
+            }else{
+                $("#login").hide();
+                $("#back").show();
+            }
 
         })
+
+        //返回按钮
+        $("#back").click(function () {
+            $("#login").show();
+            $("#back").hide();
+            $("#registercMessage").empty();
+        })
+
+
+
     })
 
 </script>

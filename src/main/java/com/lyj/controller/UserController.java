@@ -6,6 +6,7 @@ import com.lyj.entity.User;
 import com.lyj.service.URLService;
 import com.lyj.service.UserService;
 import com.lyj.util.ResultUtil;
+import com.lyj.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,19 +37,26 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping("/save")
-    public ModelAndView save(User user){
+    public Result save(User user){
 
-        ModelAndView mv=new ModelAndView("index");
-        mv.addObject("msg","注册成功!");
-        userService.saveUser(user);
+        if(StringUtil.isNotEmpty(user.getUserName()) && StringUtil.isNotEmpty(user.getPassword())){
+            if(!userService.isExists(user)){//判断是否已经存在该用户名
+                User saveUser = userService.saveUser(user);
+                if(saveUser!=null) {//保存成功
+                    return ResultUtil.success("注册成功");
+                }
+            }else{
+                return ResultUtil.error("该用户名已存在");
+            }
+        }
 
-        return mv;
+        return ResultUtil.error("注册失败");
     }
 
     //返回一个Tempalte中的main.html页面
     @RequestMapping("/main")
-    public String userMain(Model model){
-        model.addAttribute("msg","ssss");
+    public String userMain(Model model,HttpSession session){
+        model.addAttribute("user",session.getAttribute("user"));
         return "main";
     }
 
@@ -81,6 +89,18 @@ public class UserController {
             }else{
                 return ResultUtil.error("用户名或密码错误");
             }
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("/exit")
+    public Result exit(HttpSession session){
+        User sessionUser = (User) session.getAttribute("user");
+        if(sessionUser==null){//说明用户已经存在
+            return ResultUtil.error("用户不存在");
+        }else{
+            session.removeAttribute("user");
+            return ResultUtil.success("退出成功");
         }
     }
 }
