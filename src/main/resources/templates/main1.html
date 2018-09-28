@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link href="/static/main/miniui.css" rel="stylesheet">
+</head>
+<body>
+
+<h1>主页</h1>
+<h4>userName:${user.userName!}</h4>
+
+
+<form action="/url/save" method="post">
+    url名称:<input name="urlName"/><br>
+    网址:<input name="url"/><br>
+    <button type="submit">添加网址</button><br>
+</form>
+
+<table>
+    <th>
+        <td>名称:</td>
+        <td>网址:</td>
+    </th>
+
+    <#if urlList??><!-- 判断urlList是否为空 -->
+        <#list urlList as item>
+            <tr>
+                <td>${item.urlName}</td>
+                <td><a href="${item.url}">${item.url}</a></td>
+            </tr>
+        </#list>
+    </#if>
+
+</table>
+
+<button id="exit">退出</button>
+
+
+</body>
+</html>
+
+
+<script src="/static/jquery.min.js"></script>
+<script src="/static/main/miniui.js"></script>
+
+<script>
+
+    $("#exit").click(function () {
+
+        $.ajax({
+            url:"/user/exit",
+            type:'post',
+            dataType:'json',
+            success:function (data) {
+                if(data.code==200){
+                    window.location.href="/";//url: http://localhost:8087/
+                }else if(data.code==400){
+                    window.location.href="/";
+                }
+            }
+        })
+    })
+
+</script>

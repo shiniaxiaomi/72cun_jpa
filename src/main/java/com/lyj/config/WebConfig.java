@@ -24,8 +24,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         //注册自定义拦截器，添加拦截路径和排除拦截路径
         //拦截的作用是判断是否已经登入(即判断session中是否已经有user对象)
+
+        //这个拦截的要看的就是请求的url是否包含指定的内容
         registry.addInterceptor(new LoginCheckInterceptor()).addPathPatterns("/**")
-                .excludePathPatterns("/static/**")//排除url请求是以static开头的静态文件
+                .excludePathPatterns("/index/**","/res/**","/scripts/**")//排除url请求是以index,res,scripts开头的静态文件
                 .excludePathPatterns("/user/login","/user/save","/index")//排除登入和注册请求
                 ;
     }
