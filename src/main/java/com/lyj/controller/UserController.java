@@ -35,10 +35,13 @@ public class UserController {
     URLService urlService;
 
 
+    /**
+     * 注册用户
+     * @return 返回一个json对象
+     */
     @ResponseBody
     @RequestMapping("/save")
     public Result save(User user){
-
         if(StringUtil.isNotEmpty(user.getUserName()) && StringUtil.isNotEmpty(user.getPassword())){
             if(!userService.isExists(user)){//判断是否已经存在该用户名
                 User saveUser = userService.saveUser(user);
@@ -53,13 +56,17 @@ public class UserController {
         return ResultUtil.error("注册失败");
     }
 
-    //返回一个Tempalte中的main.html页面
+    /**
+     * 直接返回String类型,然后模板引擎会在返回的字符串后面加上.html后缀,
+     * 然后再到templates文件夹中找到对应的模板进行渲染,染回返回给客户端
+     *
+     * @param model : 返回给模板引擎,在渲染的时候可以直接取到model中设置的值
+     */
     @RequestMapping("/main")
     public String userMain(Model model,HttpSession session){
         model.addAttribute("user",session.getAttribute("user"));
         return "main";
     }
-
 
     /**
      * forward(转发):
@@ -92,15 +99,13 @@ public class UserController {
         }
     }
 
-    @ResponseBody
+    /**
+     * 退出登入
+     *      使用redirect进行重定向 : 网页进行重定向,直接让客户端重新发起/请求
+     */
     @RequestMapping("/exit")
-    public Result exit(HttpSession session){
-        User sessionUser = (User) session.getAttribute("user");
-        if(sessionUser==null){//说明用户已经存在
-            return ResultUtil.error("用户不存在");
-        }else{
-            session.removeAttribute("user");
-            return ResultUtil.success("退出成功");
-        }
+    public String exit(HttpSession session){
+        session.removeAttribute("user");//删除用户
+        return "redirect:/";
     }
 }
