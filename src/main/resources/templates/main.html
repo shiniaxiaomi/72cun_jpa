@@ -10,32 +10,45 @@
 
     <style>
         .el-header, .el-footer {
-            background-color: #B3C0D1;
+            background-color: #393D49;
             color: #333;
+            height: 80px;
             /*text-align: center;*/
         }
 
         .el-aside {
-            background-color: #D3DCE6;
+            background-color: #545c64;
             color: #333;
             text-align: center;
+            margin-right: 1px;
         }
 
         .el-main {
-            /*background-color: #E9EEF3;*/
             color: #333;
             text-align: center;
-            /*line-height: 160px;*/
+            padding: 0px;
         }
 
-        /*.el-container:nth-child(5) .el-aside,*/
-        /*.el-container:nth-child(6) .el-aside {*/
-        /*}*/
+        .el-menu{
+            border-right: solid 1px #545c64;
+        }
 
-        /*.el-container:nth-child(7) .el-aside {*/
-        /*}*/
+        .el-tab-pane{
+            height: 100%;
+        }
+        .el-tabs__content{
+            height: 90%;
+            margin-bottom: -60px;
+        }
 
-        html, body,iframe{
+        html, body{
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+
+        iframe{
             width: 100%;
             height: 100%;
             margin: 0px;
@@ -48,41 +61,35 @@
 <body>
 
 
-    <!--<div style="background-color: #73bd48;height: 600px"></div>-->
-
     <el-container id="root" style="height: 100%">
         <el-header>
-            <h3 style="font-weight: normal;">72cun:网址收藏</h3>
+            <h3 style="font-weight: normal;color: #eeeeee">72cun:网址收藏</h3>
         </el-header>
+        <div style="background-color: #5FB878;height: 6px"></div>
 
         <el-container>
             <el-aside width="200px">
-                <el-menu default-active="2" class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
-                    <el-menu-item index="1" @click="addTab('1')">
-                        <span slot="title" >导航1</span>
-                    </el-menu-item>
-                    <el-menu-item index="2" @click="addTab('2')">
-                        <span slot="title" >导航2</span>
-                    </el-menu-item>
-                    <el-menu-item index="3" @click="addTab('3')">
-                        <span slot="title" >导航3</span>
+                <el-menu ref="parentMenu" default-active="0" class="el-menu-vertical-demo" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+                    <el-menu-item :index="item.index" @click="addTab(item.title,item.url)" style="width: 100%" v-for="item of menus" :key="item.index">
+                        <span slot="title" >{{item.title}}</span>
                     </el-menu-item>
                 </el-menu>
             </el-aside>
 
-            <el-main>
-                <!--<iframe src="/111"></iframe>-->
-                <div id="mydiv"></div>
-                <!--<el-tabs v-model="editableTabsValue2" type="card" closable @tab-remove="removeTab">-->
-                    <!--<el-tab-pane-->
-                            <!--v-for="(item, index) in editableTabs2"-->
-                            <!--:key="item.name"-->
-                            <!--:label="item.title"-->
-                            <!--:name="item.name"-->
-                    <!--&gt;-->
-                        <!--{{item.content}}-->
-                    <!--</el-tab-pane>-->
-                <!--</el-tabs>-->
+            <el-main >
+                <el-tabs ref="tabs" v-model="editableTabsValue2" type="card" closable @tab-remove="removeTab" @tab-click="clickTab" style="height:100%;">
+                    <el-tab-pane
+                            v-for="(item, index) in editableTabs2"
+                        :key="item.name"
+                        :label="item.title"
+                        :name="item.name"
+                        >
+                        <!--<div v-html="item.content"></div>-->
+                        <iframe :src="item.url" frameborder="0" ></iframe>
+                    </el-tab-pane>
+                </el-tabs>
+
+
             </el-main>
         </el-container>
     </el-container>
@@ -100,87 +107,92 @@
     var vue=new Vue({
         el: '#root',
         data: {
-//            editableTabsValue2: '2',//激活当前哪个tab(按照name来选择)
-//            editableTabs2: [{
-//                title: 'Tab 1',
-//                name: '1',
-//                content: 'Tab 1 content'
-//            }, {
-//                title: 'Tab 2',
-//                name: '2',
-//                content: 'Tab 2 content'
-//            }],
-//            tabIndex: 2
+            editableTabsValue2: '0',//激活当前哪个tab(按照name来选择)
+            editableTabs2: [], //存放tab的数组
+
+            menus:[{
+                title: '导航1',
+                url:'/',
+                index:'1',
+            },{
+                title: '导航2',
+                url:'/111',
+                index:'2',
+            },{
+                title: '导航3',
+                url:'/',
+                index:'3',
+            }],
         },
         methods:{
-//            addTab(targetName) {
-//                //如果已经存在tab,则激活
-//                var tabs=this.editableTabs2;
-//                for(var i=0;i<tabs.length;i++){
-//                    if(tabs[i].name==targetName){
-//                        this.editableTabsValue2 = targetName;
-//                        return;
-//                    }
-//                }
-//
-//                var this_=this;
+            addTab(targetName,url) {
+                //如果已经存在tab,则激活
+                var tabs=this.editableTabs2;
+                for(var i=0;i<tabs.length;i++){
+                    if(tabs[i].name==targetName){
+                        this.editableTabsValue2 = targetName;
+                        return;
+                    }
+                }
+
+                var this_=this;
+                var tab={
+                    title: targetName,
+                    name: targetName,
+                    url: url,
+                };
+
+                //如果不存在,则添加
+                this_.editableTabs2.push(tab);
+                this_.editableTabsValue2 = targetName;
+
 //                $.ajax({
-//                    url:"/111",
+//                    url: url,
 //                    type:'post',
 //                    dataType:'json',
 //                    data:{},
 //                    complete(XHR, TS){
-//                        var tab={
-//                            title: 'New Tab',
-//                            name: targetName,
-//                            content: XHR.responseText,
-//                        };
 //
-//                        //如果不存在,则添加
-//                        this_.editableTabs2.push(tab);
-//                        this_.editableTabsValue2 = targetName;
 //                    }
 //                });
-//
-//
-//
-//            },
-//            removeTab(targetName) {
-//                if(this.editableTabs2.length==1){//如果只剩下一个tab,则不允许关闭
-//                    return;
-//                }
-//                let tabs = this.editableTabs2;
-//                let activeName = this.editableTabsValue2;
-//                if (activeName === targetName) {
-//                    tabs.forEach((tab, index) => {
-//                        if (tab.name === targetName) {
-//                            let nextTab = tabs[index + 1] || tabs[index - 1];
-//                            if (nextTab) {
-//                                activeName = nextTab.name;
-//                            }
-//                        }
-//                    });
-//                }
-//
-//                this.editableTabsValue2 = activeName;
-//                this.editableTabs2 = tabs.filter(tab => tab.name !== targetName);
-//            },
+
+
+
+            },
+            removeTab(targetName) {
+                let tabs = this.editableTabs2;
+                let activeName = this.editableTabsValue2;
+                if (activeName === targetName) {
+                    tabs.forEach((tab, index) => {
+                        if (tab.name === targetName) {
+                            let nextTab = tabs[index + 1] || tabs[index - 1];
+                            if (nextTab) {
+                                activeName = nextTab.name;
+                            }
+                        }
+                    });
+                }
+
+                this.editableTabsValue2 = activeName;
+                this.editableTabs2 = tabs.filter(tab => tab.name !== targetName);
+
+                if(this.editableTabs2.length==0){//如果没有tab
+                    this.$refs.tabs.panes=[];
+                }
+
+            },
+            clickTab(obj){//点击tab选中菜单
+                var menus=this.menus;
+                for(var i=0;i<menus.length;i++){
+                    if(menus[i].title==obj.name){
+                        this.$refs.parentMenu.activeIndex=menus[i].index;
+                    }
+                }
+
+            }
         }
     })
 
-
-//    $.ajax({
-//        url:"/111",
-    //        type:'post',
-    //        dataType:'json',
-    //        data:{},
-    //        complete(XHR, TS){
-    //            content: XHR.responseText
-    //            $("#div")
-    //        }
-    //    });
-
-    $("#mydiv").load('/111',null,function(){alert("加载成功")});
 
 </script>
 
