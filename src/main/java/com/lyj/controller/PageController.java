@@ -2,6 +2,7 @@ package com.lyj.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+<<<<<<< HEAD
 
 /**
  * Created by 陆英杰
@@ -38,6 +39,27 @@ public class PageController {
     @RequestMapping("/urlManager/folderManager")
     public String folderManager(){
         return "/urlManager/folderManager";
+=======
+import org.springframework.web.bind.annotation.ResponseBody;
+
+/**
+ * Created by Yingjie.Lu on 2018/10/7.
+ */
+
+@Controller
+public class PageController {
+
+
+    @RequestMapping("/")
+    public String toLogin(){
+        return "login";
+    }
+
+
+    @RequestMapping("/111")
+    public String aaa(){
+        return "111";
+>>>>>>> e8ae9ab7f552a5b6bcb2cc8fd841b70e2dfa7722
     }
 
 }

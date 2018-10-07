@@ -1,4 +1,4 @@
-﻿[
+﻿﻿[
 	{ "id": "1", iconCls: "fa fa-desktop", text: "网址管理", children: [
         { "id": "1_1", iconCls: "fa fa-desktop", text: "文件夹管理", url: "/urlManager/mainManager/mainManager" },
         { "id": "1_2", iconCls: "fa fa-search", text: "单页管理", url: "pages/1.html"},

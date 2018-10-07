@@ -84,18 +84,19 @@ public class UserController {
     @ResponseBody
     @RequestMapping("/login")
     public Result login(User user, HttpSession session){
-        User sessionUser = (User) session.getAttribute("user");
-        if(sessionUser!=null){//说明用户已经存在
-            return ResultUtil.success();
-        }else{
-            User loginedUser = userService.login(user);
-            if(loginedUser!=null){
-                session.setAttribute("user",loginedUser);
-                return ResultUtil.success("登入成功");
-            }else{
-                return ResultUtil.error("用户名或密码错误");
-            }
-        }
+//        User sessionUser = (User) session.getAttribute("user");
+//        if(sessionUser!=null){//说明用户已经存在
+//            return ResultUtil.success();
+//        }else{
+//            User loginedUser = userService.login(user);
+//            if(loginedUser!=null){
+                session.setAttribute("user",user);
+//                return ResultUtil.success("登入成功");
+//            }else{
+//                return ResultUtil.error("用户名或密码错误");
+//            }
+//        }
+        return ResultUtil.success("登入成功");
     }
 
     /**

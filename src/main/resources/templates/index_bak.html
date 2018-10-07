@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>72cun</title>
+    <meta name="author" content="网址收藏">
+    <style>
+        body{height:100%;background:#16a085;overflow:hidden;}
+        canvas{z-index:-1;position:absolute;}
+    </style>
+
+</head>
+<body><canvas class="pg-canvas" width="1920" height="546"></canvas>
+<dl class="admin_login">
+    <dt>
+        <strong style="color: #73bd48">72cun</strong>
+        <em>网址收藏</em>
+    </dt>
+
+    <dd class="user_icon">
+        <input name="userName" type="text" placeholder="账号" class="login_txtbx userName">
+    </dd>
+    <dd class="pwd_icon">
+        <input name="password" type="password" placeholder="密码" class="login_txtbx password">
+    </dd>
+    <dd id="loginDiv">
+        <input type="button" value="登陆" class="submit_btn" id="login">
+        <div style='text-align: center'><span id='registercMessage' style='color: #64d8ff' ></span></div>
+    </dd>
+    <dd>
+        <input type="button" value="注册" class="submit_btn" id="registerc">
+    </dd>
+
+    <dd>
+        <input type="button" value="返回" class="submit_btn" id="back" style="display: none">
+        <div style="text-align: center"><span id="message" style="color: #64d8ff" ></span></div>
+    </dd>
+
+
+</dl>
+
+</body>
+</html>
+
+<script src="/scripts/jquery.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $('body').particleground({
+            dotColor: '#5cbdaa',
+            lineColor: '#5cbdaa'
+        });
+
+        //自动登入试探
+        $.ajax({
+            url:"/user/login",
+            type:'post',
+            dataType:'json',
+            data:{},
+            success:function (data) {
+                if(data.code==200){
+                    window.location.href="/user/main";//url: http://localhost:8087/user/main
+                }
+            }
+        });
+
+        $("#login").click(function () {
+            var txtbx=$('.userName').val();
+            var password=$('.password').val();
+            if(txtbx==""){
+                alert("请输入账号");
+                return;
+            }
+            if(password==""){
+                alert("请输入密码");
+                return;
+            };
+
+
+            $.ajax({
+                url:"/user/login",
+                type:'post',
+                dataType:'json',
+                data:{userName:txtbx,password:password},
+                success:function (data) {
+                    if(data.code==200){
+                        window.location.href="/user/main";//url: http://localhost:8087/user/main
+                    }else if(data.code==400){
+                        //显示错误信息
+                        $("#message").html(data.message);
+                    }
+                }
+            });
+
+
+        })
+
+
+        $("#registerc").on("click",function () {
+            $("#message").empty();
+
+            if($("#login").is(':hidden')){
+                //进行注册
+                var txtbx=$('.userName').val();
+                var password=$('.password').val();
+                if(txtbx==""){
+                    alert("请输入账号");
+                    return;
+                }
+                if(password==""){
+                    alert("请输入密码");
+                    return;
+                };
+
+                $.ajax({
+                    url:"/user/save",
+                    type:'post',
+                    dataType:'json',
+                    data:{userName:txtbx,password:password},
+                    success:function (data) {
+                        if(data.code==200){//
+                            $("#back").click();//注册成功后,返回登入按钮
+                            alert("注册成功!");
+                        }else if(data.code==400){
+                            //显示错误信息
+                            $("#registercMessage").html(data.message);
+                        }
+                    }
+                });
+            }else{
+                $("#login").hide();
+                $("#back").show();
+            }
+
+        })
+
+        //返回按钮
+        $("#back").click(function () {
+            $("#login").show();
+            $("#back").hide();
+            $("#registercMessage").empty();
+        })
+
+
+
+    })
+
+</script>
