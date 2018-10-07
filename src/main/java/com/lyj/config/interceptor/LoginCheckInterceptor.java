@@ -1,6 +1,8 @@
 package com.lyj.config.interceptor;
 
 import com.lyj.entity.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -14,6 +16,8 @@ import javax.servlet.http.HttpSession;
  */
 public class LoginCheckInterceptor implements HandlerInterceptor {
 
+    private static Logger logger=LoggerFactory.getLogger(LoginCheckInterceptor.class);
+
     /**
      * 在请求前处理
      * response.sendRedirect("/index.html");//url: http://localhost:8087/index.html
@@ -26,10 +30,11 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         if(user==null){
             response.sendRedirect("/");//重新请求到登入页面
 
-            System.out.println("拦截了: "+request.getRequestURL().toString()+" 请求");
+            logger.info("拦截了: "+request.getRequestURL().toString()+" 请求");
             return false;
         }
-        System.out.println("通过了: "+request.getRequestURL().toString()+" 请求");
+
+        logger.info("通过了: "+request.getRequestURL().toString()+" 请求");
         return true;
     }
 

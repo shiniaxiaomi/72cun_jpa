@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+
+<table>
+    <tr>
+        <td>url名称:</td>
+        <td><input id="urlName" name="urlName"/></td>
+    </tr>
+    <tr>
+        <td>网址:</td>
+        <td><input id="url" name="url"/></td>
+    </tr>
+
+    <tr>
+        <button id="addURL" >添加网址</button>
+    </tr>
+
+</table>
+
+
+
+
+</body>
+</html>
+
+<script src="/scripts/jquery.min.js"></script>
+
+<script>
+
+
+    $("#addURL").click(function () {
+
+        var urlName=$('#urlName').val();
+        var url=$('#url').val();
+        if(urlName==""){
+            alert("请输入网址名称");
+            return;
+        }
+        if(url==""){
+            alert("请输入网址");
+            return;
+        };
+
+
+        $.ajax({
+            url:"/url/save",
+            type:'post',
+            dataType:'json',
+            data:{urlName:urlName,url:url},
+            success:function (data) {
+
+                console.dir(data)
+
+                if(data.code==200){
+                    alert("保存成功!");
+                }else if(data.code==400){
+                    //显示错误信息
+                    alert("保存失败!");
+                }
+            }
+        });
+    })
+
+</script>

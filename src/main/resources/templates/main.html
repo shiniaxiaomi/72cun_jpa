@@ -20,12 +20,15 @@
 </head>
 <body>
 
-
+<!-- 侧边栏菜单 -->
 <div class="sidebar">
     <div id="mainMenu"></div>
 </div>
 
+<!-- 主窗口 -->
 <div class="container">
+
+    <!-- 最顶端的工具栏 -->
     <div class="navbar">
         <div style="padding-left: 20px"><h2>72cun : 网址收藏</h2></div>
         <ul class="nav navbar-nav navbar-right">
@@ -43,15 +46,14 @@
         </ul>
     </div>
 
-    <!-- 当前的主页面,是不能关闭的 -->
+    <!-- tab栏 -->
     <div class="main">
+        <!-- 最上面的tab栏 -->
         <div id="mainTabs" class="mini-tabs indexTabs" activeIndex="0" style="width:100%;height:100%;" plain="false"
-             buttons="#tabsButtons" arrowPosition="side">
-            <div name="index" iconCls="fa-android" title="首页">
-                <h1>我是首页</h1>
-            </div>
+             buttons="#tabsButtons" arrowPosition="side" contextMenu="#tabsMenu" >
         </div>
 
+        <!-- tab栏上的按钮 -->
         <div id="tabsButtons">
             <a class="tabsBtn" title="sdfsdfsd"><i class="fa fa-home"></i></a>
             <a class="tabsBtn"><i class="fa fa-refresh"></i></a>
@@ -60,7 +62,21 @@
         </div>
     </div>
 
+
+    <!--<a id="shouye" href="/urlManager/mainManager" target="rrr">11111111</a>-->
+
 </div>
+
+
+
+<!-- 在tab上显示的右键菜单 -->
+<ul id="tabsMenu" class="mini-contextmenu" onbeforeopen="onBeforeOpen">
+    <li onclick="loadTab">刷新</li>
+    <li onclick="closeTab">关闭标签页</li>
+    <li onclick="closeAllBut">关闭其他标签页</li>
+    <li onclick="closeAll">关闭所有标签页</li>
+</ul>
+
 
 
 </body>
@@ -68,8 +84,16 @@
 
 <script>
 
+    mini.parse();
+
+    //====================================
+    var tabs = mini.get("mainTabs");//获取到最顶部的总的tabs(包含了所有的tab)
+    var currentTab = null;
+
+    addTab("首页","/urlManager/mainManager/mainManager");//默认添加首页
+
     function activeTab(item) {
-        var tabs = mini.get("mainTabs");
+
         var tab = tabs.getTab(item.id);
         if (!tab) {
             tab = { name: item.id, title: item.text, url: item.url, iconCls: item.iconCls, showCloseButton: true };
@@ -77,6 +101,7 @@
         }
         tabs.activeTab(tab);
     }
+
 
     $(function () {
 
@@ -90,7 +115,7 @@
         });
 
         //左边菜单栏
-        $(".sidebar").mCustomScrollbar({ autoHideScrollbar: true });
+        $(".sidebar").mCustomScrollbar({ autoHideScrollbar: true});
 
         function autoScrollbar() {
             var jq = $(".mCSB_container");
@@ -112,7 +137,6 @@
             success: function (text) {
                 var data = mini.decode(text);
                 menu.loadData(data);
-
 
             }
         })
@@ -140,6 +164,73 @@
             $("#user").attr("value","close");
             $(".dropdown").removeClass("open");
         });
+
     });
+
+    //tabs上面的右键菜单=================================================
+    function onBeforeOpen(e) {
+        currentTab = tabs.getTabByEvent(e.htmlEvent);
+        if (!currentTab) {
+            e.cancel = true;
+        }
+    }
+
+    //添加一个tab(传入url和title即可)
+    function addTab(title,url) {
+        var tab = { title: title , url: url, showCloseButton: false };
+        tab.ondestroy = function (e) {
+            var tabs = e.sender;
+            var iframe = tabs.getTabIFrameEl(e.tab);
+
+            //获取子页面返回数据
+            var pageReturnData = iframe.contentWindow.getData ? iframe.contentWindow.getData() : "";
+
+            //如果禁止销毁的时候，自动active一个新tab：e.autoActive = false;
+        }
+        tabs.addTab(tab);
+
+        //active tab
+        tabs.activeTab(tab);
+    }
+
+    function loadTab() {
+        var tab = tabs.getActiveTab();
+        tabs.loadTab(tab.loadedUrl, tab);
+    }
+    function closeTab() {
+        if(currentTab.title=="首页"){
+            return;
+        }
+        tabs.removeTab(currentTab);
+    }
+    //删除所有,除了当前tab
+    function closeAllBut() {
+        var but = [currentTab];//将当前tab转成数组
+
+        var buff=tabs.tabs;
+        for(var i=0;i<buff.length;i++){
+            if(buff[i].title=="首页"){
+                but.push(buff[i]);//在数组中添加首页
+                break;
+            }
+        }
+
+        tabs.removeAll(but);//删除所有,除了but中的tab
+    }
+    function closeAll() {
+        var but = [];//转成数组
+
+        var buff=tabs.tabs;
+        for(var i=0;i<buff.length;i++){
+            if(buff[i].title=="首页"){
+                but.push(buff[i]);//在数组中添加首页
+                break;
+            }
+        }
+        tabs.removeAll(but);
+    }
+    //===================================================================
+
+
 
 </script>

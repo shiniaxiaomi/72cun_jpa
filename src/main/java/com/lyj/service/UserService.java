@@ -1,8 +1,10 @@
 package com.lyj.service;
 
 import com.lyj.dao.UserDao;
+import com.lyj.entity.Folder;
 import com.lyj.entity.User;
 import com.lyj.util.StringUtil;
+import com.lyj.util.VarUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,8 @@ public class UserService {
     }
 
     public User saveUser(User user){
+        Folder folder = new Folder("默认文件夹", 0, VarUtil.intTure,VarUtil.intFalse, user);
+        user.getFolders().add(folder);//设置默认文件夹,User已经设置了级联保存了
         return userDao.save(user);
     }
 

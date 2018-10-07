@@ -26,6 +26,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<URL> urls=new HashSet<>();
 
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.PERSIST})
+    private Set<Folder> folders=new HashSet<>();
+
     public User() {
     }
 
@@ -60,5 +63,21 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Set<URL> getUrls() {
+        return urls;
+    }
+
+    public void setUrls(Set<URL> urls) {
+        this.urls = urls;
+    }
+
+    public Set<Folder> getFolders() {
+        return folders;
+    }
+
+    public void setFolders(Set<Folder> folders) {
+        this.folders = folders;
     }
 }

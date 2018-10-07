@@ -34,7 +34,6 @@ public class UserController {
     @Autowired
     URLService urlService;
 
-
     /**
      * 注册用户
      * @return 返回一个json对象

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+
+    <script src="/scripts/boot.js"></script>
+
+    <!--<script src="/demo/CommonLibs/TreeSelectWindow.js" type="text/javascript"></script>-->
+
+</head>
+<body>
+
+
+    <div name="index" iconCls="fa-android" title="首页">
+        <!-- 搜索框 -->
+        <div align="center">
+            <!-- 自动提示搜索框(多列) -->
+            <input id="key" class="mini-textbox" emptyText="请输入关键字" style="width:300px;" onenter="onKeyEnter"/>
+
+            <a class="mini-button" id="search" onclick="search()">查询</a>
+            <a class="mini-button" id="clean" onclick="clean()">清空</a>
+        </div>
+
+        <hr>
+        <!-- 添加网址 -->
+        <a class="mini-button" iconCls="icon-add" onclick="showAddWindow()">添加网址</a>
+
+        <!-- 添加文件夹 -->
+        <a class="mini-button" iconCls="icon-add" onclick="showAddFolderWindow()">添加文件夹</a>
+
+        <!-- url展示table -->
+        <div id="datagrid1" class="mini-datagrid" style="width:100%;height:500px;"
+             url="/url/search" idField="id" allowResize="true"
+             sizeList="[20,30,50,100]" pageSize="20"
+             showHeader="true" title="表格面板"
+             onmouseup="return datagrid1_onmouseup()">
+            <div property="columns">
+                <div field="name" width="100" align="center" headerAlign="center" allowSort="true">网址名称</div>
+                <div field="url" width="100" allowSort="true" renderer="onURL" align="center" headerAlign="center">网址</div>
+                <div name="action" width="100" headerAlign="center">操作</div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- ========================================其他功能窗口=========================================== -->
+
+    <#include "./addURL.html">
+
+    <!-- 更新url窗口 -->
+    <div id="updateWindow" class="mini-window" title="Window" style="width:500px;height: 200px"
+         showModal="true" allowResize="true" allowDrag="true">
+        <div id="updateform" class="form" >
+            <input class="mini-hidden" name="id"/>
+            <table style="width:100%;">
+                <input id="urlId" style="display: none;"/>
+                <tr>
+                    <td style="width:80px;">网址名称:</td>
+                    <td style="width:200px;"><input style="width: 200px" name="name" id="updateUrlName" class="mini-textbox" /></td>
+                </tr>
+                <tr>
+                    <td style="width:80px;">网址:</td>
+                    <td style="width:200px;"><input style="width: 200px" name="url" id="updateUrl" class="mini-textbox" /></td>
+                </tr>
+                <tr>
+                    <td style="width:80px;">属于该文件夹:</td>
+                    <td>
+                        <input id="updateURL_tree" class="mini-treeselect"
+                               valueField="id" textField="name" parentField="pId"
+                               valueFromSelect="false" showTreeIcon="false" expandOnLoad="0"
+                        />
+                    </td>
+                </tr>
+            </table>
+
+            <div align="center">
+                <button id="updateButton" style="width: 40px;margin: 10px 5px 15px;">更改</button>
+                <button id="cancelButton2" style="width: 40px;margin: 10px 5px 15px;">取消</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 添加文件夹窗口 -->
+    <div id="addTreeWindow" class="mini-window" title="Window" style="width:500px;height: 200px"
+         showModal="true" allowResize="true" allowDrag="true">
+
+        <table>
+            <tr>
+                <td>文件夹名称:</td>
+                <td><input style="width: 200px" name="name" id="folderName" class="mini-textbox" /></td>
+            </tr>
+            <tr>
+                <td>在选中文件夹的下一级添加</td>
+                <td>
+                    <input id="add_tree" class="mini-treeselect"
+                           valueField="id" textField="name" parentField="pId"
+                           valueFromSelect="false" showTreeIcon="false" style="width: 200px" expandOnLoad="0"
+                    />
+                </td>
+            </tr>
+        </table>
+
+        <div align="center">
+            <button onclick="addTree()" style="width: 40px;margin: 10px 5px 15px;">添加</button>
+            <button onclick="treeCancel()" style="width: 40px;margin: 10px 5px 15px;">取消</button>
+        </div>
+
+        <!-- 自定义树形 -->
+        <!--<ul id="tree1" class="mini-tree" url="/folder/query" style="width:200px;padding:5px;"-->
+            <!--showTreeIcon="true" textField="name" idField="id" parentField="pId" resultAsTree="false"-->
+            <!--showArrow="true" expandOnNodeClick="true" ondrawnode="onDrawNode">-->
+        <!--</ul>-->
+    </div>
+    <!-- ============================================================================================= -->
+
+
+
+</body>
+</html>
+
+
+<script>
+
+    mini.parse();
+
+    var tree = mini.get("add_tree");//树形展示
+    var addURL_tree = mini.get("addURL_tree");//添加url时的树形展示
+    var updateURL_tree = mini.get("updateURL_tree");//添加url时的树形展示
+
+    var addTreeWindow = mini.get("addTreeWindow");
+
+    var grid = mini.get("datagrid1");//获取表格窗口
+    grid.load();
+    grid.sortBy("name", "desc");
+
+
+
+    //为每个树创建一个数据存储空间
+    var tree_data=null;
+    var addURL_tree_data=null;
+    var updateURL_tree_data=null;
+    //重新加载树形
+    $.ajax({
+        url:"/folder/query",
+        type:"post",
+        dataType:"json",
+        success:function (data) {
+            tree_data=data;
+            addURL_tree_data=data;
+            updateURL_tree_data=data;
+
+//            tree.loadList (tree_data, "id", "pId");//重新加载树形
+
+//            setTimeout('updateURL_tree.loadList (updateURL_tree_data, "id", "pId")',100);  //重新加载树形
+//            setTimeout('addURL_tree.loadList (addURL_tree_data, "id", "pId")',100);  //重新加载树形
+        }
+    })
+
+    //搜索框======================================================
+    function search() {
+        var key = $("#key").find("input").val();
+        if(key==undefined || key==null){
+            key="";
+        }
+        grid.load({ key: key});
+    }
+    //清空搜索框
+    function clean() {
+        var key = $("#key").find("input").val("");
+    }
+    //搜索绑定回车键
+    function onKeyEnter() {
+        search();
+    }
+    //=============================================================
+
+
+
+    //表格=======================================================
+
+    function applySort() {
+        var sortField = document.getElementById("sortField").value;
+        var sortOrder = document.getElementById("sortOrder").value;
+        grid.sortBy(sortField, sortOrder);
+    }
+
+    function datagrid1_onmouseup() {
+
+    }
+
+    grid.on("drawcell", function (e) {
+        var record = e.record,
+            column = e.column,
+            field = e.field,
+            value = e.value;
+
+        //url加上链接
+        if (field == "url") {
+            e.cellHtml = "<a href="+record.url+" target='_blank'>"+record.url+"</a>";
+        }
+        //action列，超连接操作按钮
+        if (column.name == "action") {
+            //e.cellStyle = "text-align:center";
+            e.cellHtml =  "<a onclick='edit(" + record.id + ")'>编辑</a>&nbsp;&nbsp;" +
+                "<a onclick='del(" + record.id + ")'>删除</a>";
+        }
+    });
+    //更改url
+    function edit(rowid) {
+        //通过表格的内置函数,进行查询id为rowid的行的数据
+        var row = grid.findRow(function(row){
+            if(row.id == rowid) return true;
+        });
+        showUpdateWindow(row);
+    }
+    //删除url
+    function del(rowid) {
+        mini.confirm("确定删除记录？", "确定？",
+            function (action) {
+                if (action == "ok") {
+                    $.ajax({
+                        url:"/url/delete",
+                        type:"post",
+                        dataType:"json",
+                        data:{urlId:rowid},
+                        success:function (data) {
+                            if(data.code==200){
+                                showTips("删除成功!");
+                                search();//重新加载表格
+                            }else {
+                                showTips("删除失败!");
+                            }
+                        }
+                    })
+                }
+            }
+        );
+    }
+    //===============================================================
+
+
+    //更新url窗口==================================================
+    //显示更新窗口
+    function showUpdateWindow(row) {
+        updateWindow.show();//添加窗口显示
+        var form = new mini.Form("#updateform");
+        form.clear();//清空表单
+
+
+        //填充值
+        $("#urlId").val(row.id);
+        $("#updateUrlName").find('input').val(row.name);
+        $("#updateUrl").find('input').val(row.url);
+
+
+        updateURL_tree.setValue(row.folder);//设置选中原来的所属文件夹
+
+    }
+    //更新url操作
+    $("#updateButton").click(function () {
+
+//        var node=updateURL_tree.getList ()[0];
+//        console.dir(node)
+//        updateURL_tree.setValue(node);
+//        return;
+
+        var urlId=$('#urlId').val();
+        var urlName=$('#updateUrlName').find('input').val();
+        var url=$('#updateUrl').find('input').val();
+
+        if(urlName==""){
+            showTips("请输入网址名称");
+            return;
+        }
+        if(url==""){
+            showTips("请输入网址");
+            return;
+        };
+
+        $.ajax({
+            url: "/url/update",
+            type:'post',
+            dataType:'json',
+            data:{id:urlId,name:urlName,url:url},
+            success:function (data) {
+                if(data.code==200){
+
+                    showTips("更新成功!");
+                }else if(data.code==400){
+                    //显示错误信息
+                    showTips("更新失败!");
+                }
+                search();
+                updateWindow.hide();//添加窗口隐藏
+            }
+        });
+    })
+    //隐藏添加窗口
+    $("#cancelButton2").click(function () {
+        updateWindow.hide();//添加窗口隐藏
+    })
+
+    //树形展示================================================================
+
+    function showAddFolderWindow() {
+        $("#folderName").find("input").val("");//显示前清空输入框
+        addTreeWindow.show();//添加窗口显示
+    }
+
+    function addTree() {
+        var selectedNode=tree.getSelectedNode();
+//        console.dir(selectedNode)
+        if(selectedNode==undefined){
+            showTips("请选择文件夹");
+            return;
+        }
+        var folderId=selectedNode.id;//获取到父id
+
+        var folderName=$("#folderName").find("input").val();
+        if(folderName==""){
+            showTips("请输入文件夹名称");
+            return;
+        }
+
+        $.ajax({
+            url:"/folder/insertChildren",
+            type:"post",
+            dataType:"json",
+            data:{name:folderName,pId:folderId},
+            success:function (data) {
+                if(data.code==200){
+                    showTips("添加成功!");
+
+                    //重新加载树形
+                    $.ajax({
+                        url:"/folder/query",
+                        type:"post",
+                        dataType:"json",
+                        success:function (data) {
+//                            tree.loadList (data, "id", "pId");//重新加载树形
+//                            addURL_tree.loadList (data, "id", "pId");//重新加载树形
+//                            updateURL_tree.loadList (data, "id", "pId");//重新加载树形
+                        }
+                    })
+
+                }else if(data.code==400){
+                    showTips("添加失败!");
+                }
+
+                addTreeWindow.hide();//树形窗口隐藏
+            }
+        })
+
+//        console.dir(selectedNode)
+    }
+
+    function treeCancel() {
+        addTreeWindow.hide();//树形窗口隐藏
+    }
+
+
+
+    //文件夹树状展示
+//    function onDrawNode(e) {
+//        var tree = e.sender;
+//        var node = e.node;
+//
+//        var isLeaf = tree.isLeaf(node);
+//
+//        //所有子节点加上超链接
+//        if (isLeaf == true) {
+////            e.nodeHtml = '<a href="http://www.baidu.com' + node.id + '.html" target="_blank">' + node.name + '</a>';//给子结点添加链接
+//        }
+//
+//        //父节点高亮显示；子节点斜线、蓝色、下划线显示
+//        if (isLeaf == false) {
+//            e.nodeStyle = 'font-weight:bold;';
+//        } else {
+////            e.nodeStyle = "font-style:italic;"; //nodeStyle
+//            e.nodeCls = "blueColor";            //nodeCls
+//        }
+//
+//        //修改默认的父子节点图标
+//        if (isLeaf == false) {
+//            e.iconCls = "folder";
+//        } else {
+//            e.iconCls = "folder";
+//        }
+//
+//
+//        //父节点的CheckBox全部隐藏
+//        if (isLeaf == false) {
+//            e.showCheckBox = false;
+//        }
+//    }
+
+
+
+    //显示提示信息
+    function showTips(content) {
+        mini.showTips({
+            content: content,
+            state:'danger',
+            x: 'center',
+            y: 'top',
+            timeout: 1000
+        });
+    }
+
+
+
+    function showAddWindow() {
+
+        console.dir(addWindow)
+        addWindow.show();//添加窗口显示
+        var form = new mini.Form("#addform");
+        form.clear();//清空表单
+    }
+//    function showAddWindow() {
+//        var win = mini.open({
+//            title: 'mini.open弹出方式',
+//            url: '/urlManager/mainManager/addURL',
+//            showModal: false,
+//            width: 400,
+//            height: 250
+//        });
+//        win.showAtPos('center', 'middle');
+////        addWindow.show();//添加窗口显示
+////        var form = new mini.Form("#addform");
+////        form.clear();//清空表单
+//    }
+
+</script>

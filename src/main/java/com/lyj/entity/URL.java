@@ -15,20 +15,55 @@ public class URL {
     private Integer id;
 
     @Column(length = 30)
-    private String urlName;
+    private String name;
 
     private String url;
 
     @ManyToOne
     private User user;
 
+    @ManyToOne
+    private Folder folder;
+
+
+    public URL(String name, String url, User user, Folder folder) {
+        this.name = name;
+        this.url = url;
+        this.user = user;
+        this.folder = folder;
+    }
+
+    public Folder getFolder() {
+        return folder;
+    }
+
+    public void setFolder(Folder folder) {
+        this.folder = folder;
+    }
+
     public URL() {
     }
 
-    public URL(String urlName, String url) {
-        this.urlName = urlName;
+    public URL(Integer id,String name, String url) {
+        this.id=id;
+        this.name = name;
         this.url = url;
     }
+
+    public URL(Integer id,String name, String url,Integer folderId,String folderName,Integer pId) {
+        this.id=id;
+        this.name = name;
+        this.url = url;
+
+        this.folder=new Folder(folderId,folderName,pId);
+
+    }
+
+    public URL(String name, String url) {
+        this.name = name;
+        this.url = url;
+    }
+
 
     public Integer getId() {
         return id;
@@ -38,12 +73,12 @@ public class URL {
         this.id = id;
     }
 
-    public String getUrlName() {
-        return urlName;
+    public String getName() {
+        return name;
     }
 
-    public void setUrlName(String urlName) {
-        this.urlName = urlName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getUrl() {
