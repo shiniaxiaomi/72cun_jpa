@@ -1,0 +1,826 @@
+/**
+ * Created by LuYingJie on 2018/10/10.
+ */
+
+
+
+//将数据转化成树形结构数组
+function fn(data,pid) {
+    var result = [], temp;
+    for (var i = 0; i < data.length; i++) {
+        if (data[i].pid == pid) {
+            var obj = {
+                "name": data[i].name,
+                "id": data[i].id,
+                "pid": data[i].pid,
+                "folderNum": data[i].folderNum,
+                "hasURL": data[i].hasURL,
+            };
+            temp = fn(data, data[i].id);
+            if (temp.length > 0) {
+                obj.children = temp;
+            }
+            result.push(obj);
+        }
+    }
+    return result;
+}
+//将数据转化成树形结构数组
+function buildTree(data) {
+    return fn(data,0);
+}
+
+//公共数据方法
+var common={
+    //加载文件夹数据,并保存在公共区
+    loadTreeData:function (this_) {
+        //如果mainVue没有数据,则请求一次,如果已经请求一次了,就是使用已经请求的
+        //如果mainVue有数据,则以mainVue为准
+        var mainVue=top.window.mainVue;
+        if(mainVue.treeData.length==0){
+            //请求树数据
+            util.ajax('/folder/query',{},function (data) {
+                if(data!=null){
+                    var treeData=buildTree(data);
+                    mainVue.treeData=treeData;//保存一份在mainVue中
+                    this_.treeData=treeData;
+                    mainVue.rootFolderId=treeData[0].id;
+                    console.dir(mainVue.rootFolderId)
+                }
+            })
+        }else{
+            this_.treeData=mainVue.treeData;//从mainVue中获取数据
+        }
+    },
+    //修改之后重新加载文件夹数据
+    reloadTreeData:function (this_, data) {
+        var mainVue=top.window.mainVue;
+        mainVue.treeData=data;//重新加载树
+        this_.treeData=data;
+    },
+    //获取公共对象
+    getMainVue:function () {
+        var mainVue=top.window.mainVue;
+        return mainVue;
+    },
+
+
+    //加载自定义文件夹id
+    loadNodeId:function (this_) {
+        //如果mainVue没有数据,则请求一次,如果已经请求一次了,就是使用已经请求的
+        //如果mainVue有数据,则以mainVue为准
+        var mainVue=top.window.mainVue;
+        if(mainVue.nodeId=='') {//如果公共区没有数据,加载并赋值
+            //请求自定义文件夹id
+            util.ajax("/userSettings/query", {}, function (data) {
+                if (data != null) {
+                    mainVue.nodeId = data.defaultFolderId;//保存一份在公共数据区
+                    mainVue.nodeName=data.defaultFolderName;
+                    this_.form.pid=data.defaultFolderId;
+                    this_.form.location=data.defaultFolderName;
+                }
+            });
+        }else {
+            this_.form.pid=mainVue.nodeId;//从公共数据区获取
+            this_.form.location=mainVue.nodeName;//从公共数据区获取
+        }
+    },
+
+
+
+}
+
+
+//工具对象
+var util={
+    pageSize:8,//一个页面的总个数
+    pageIndex:1,//页面的编号
+    //pageSizes:[20, 40, 60, 80],
+    pageSizes:[8, 16, 24, 32],
+    //异步的ajax请求
+    ajax:function (url,data,func) {
+        $.ajax({
+            type: 'post',
+            url: url,
+            dataType: 'json',
+            data: data,
+            error: function (data) {
+                alert("失败!");
+                console.dir("传输失败!")
+                console.dir(data);//请求失败时被调用的函数
+                console.dir("传输失败!")
+            },
+            success: function (data) {
+                func(data);
+            }
+        });
+    },
+}
+
+//url表格展示组件
+var urlTable={
+    // language=HTML
+    template:`
+        <div>
+            <!-- url展示 -->
+            <el-table :data="content" style="width: 100%;height: 100%" >
+                
+                
+                <el-table-column label="网址名称">
+                    <template slot-scope="scope">
+                        <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="网址链接" :show-overflow-tooltip="true">
+                    <template slot-scope="scope">
+                        <span><a :href="scope.row.url" target="_blank" style="text-decoration:none">{{ scope.row.url }}</a></span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="链接位置">
+                    <template slot-scope="scope">
+                        <span style="margin-left: 10px">{{ scope.row.location }}</span>
+                    </template>
+                </el-table-column>
+                
+                <el-table-column label="操作">
+                    <template slot-scope="scope">
+                        <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button size="mini" @click="handleDelete(scope.$index, content,scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+    
+            <!-- 分页 -->
+            <div style="text-align: center;">
+                <el-pagination @size-change="handleSizeChange" 
+                               @current-change="handleCurrentChange" 
+                               :current-page="pageIndex"
+                               :page-sizes="pageSizes" 
+                               :page-size="pageSize" 
+                               layout="total, sizes, prev, pager, next, jumper" 
+                               :total="totalSize">
+                </el-pagination>
+            </div>
+            
+            <!---------------------------------------- 弹窗 -------------------------------------------->
+            <!-- url编辑窗口 -->
+            <el-dialog title="编辑" :visible.sync="urlUpdateVisible" :close-on-click-modal="false" :center="false" :showClose="false">
+                <el-form :model="form" :rules="rules" ref="urlUpdateForm">
+                
+                    <input v-model="form.id" style="display: none">
+                
+                    <el-form-item label="网址名称" label-width="120px" prop="name">
+                        <el-input v-model="form.name" autocomplete="off" :maxlength="100"></el-input>
+                    </el-form-item>
+                    <el-form-item label="网址链接" label-width="120px" prop="url">
+                        <el-input v-model="form.url" autocomplete="off" :maxlength="600"></el-input>
+                    </el-form-item>
+                    
+                    <el-form-item label="文件位置" label-width="120px" prop="location">
+                        <input v-model="form.pid" style="display: none">
+                        <el-input v-model="form.location" placeholder="请选择文件夹" style="width: 50%" :disabled="true"></el-input>
+    
+                        <el-popover placement="bottom-end" width="400" trigger="click" v-model="treeShowValue" >
+    
+                            <div style="overflow:auto;width: 380px;height: 200px">
+                                <el-input placeholder="输入关键字进行过滤" v-model="filterText"></el-input>
+                                <el-tree class="filter-tree" 
+                                         :data="treeData" 
+                                         :props="defaultProps" 
+                                         default-expand-all 
+                                         :highlight-current="true" 
+                                         :expand-on-click-node="false" 
+                                         node-key="id" 
+                                         @node-click="nodeClick" 
+                                         ref="tree5" 
+                                         :filter-node-method="filterNode">
+                                </el-tree>
+                            </div>
+    
+                            <el-button slot="reference">选择文件夹</el-button>
+                        </el-popover>
+
+                        <el-button @click="defaultClick">自定义文件夹</el-button>
+    
+                    </el-form-item>
+                    
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="cancleClick">取消</el-button>
+                    <el-button type="primary" @click="updateClick(content)">更改</el-button>
+                </div>
+            </el-dialog>
+            
+            
+        </div>
+    `,
+    props:['tableData','form','type','nodeId','keyword','currentNodeId'],
+    data(){
+        return{
+            pageSize:this.tableData.pageSize,//一页中的条数
+            pageIndex:this.tableData.pageIndex,//显示第1页
+            totalSize:this.tableData.totalSize,//总共的条数
+            pageSizes:util.pageSizes,
+            content:this.tableData.content,//表格数据
+
+            treeData:[],//文件夹数据
+            urlUpdateVisible:false,
+            currentRow:'',//当前的编辑行
+            currentIndex:'',//当前编辑行的编号
+            filterText: '',
+            defaultProps: {
+                children: 'children',
+                label: 'name'
+            },
+            treeShowValue:false,
+            rules: {
+                name: [
+                    { required: true, message: '请输入网址名称', trigger: 'blur' },
+                    { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
+                ],
+                url: [
+                    { required: true, message: '请输入网址', trigger: 'blur' },
+                    { min: 1, max: 600, message: '长度在 1 到 600 个字符', trigger: 'blur' }
+                ],
+                location: [
+                    { required: true, message: '请选择网址位置', trigger: 'blur' },
+                ],
+            }
+        }
+    },
+    methods:{
+        handleSizeChange(val) {
+            this.pageSize=val;
+
+            this.search();
+        },
+        handleCurrentChange(val) {
+            this.pageIndex=val;
+
+            this.search();
+        },
+        handleEdit(index,row){//编辑行
+            // console.dir(row)
+            this.form.id=row.id;
+            this.form.pid=row.pid;
+            this.form.name=row.name;
+            this.form.url=row.url;
+            this.form.location=row.location;
+            this.currentRow=row;//将当前编辑行保存起来,方便使用
+            this.currentIndex=index;
+            this.urlUpdateVisible=true;
+        },
+        handleDelete(index,rows,row){//删除行
+            var this_=this;
+            util.ajax('/url/delete',{'id':row.id},function (data) {
+                if(data!=null){
+
+                    rows.splice(index, 1);
+                    //this_.totalSize=this_.totalSize-1;
+
+                    this_.$message("删除成功!");
+                }
+            })
+
+        },
+        cancleClick(){//编辑取消
+            this.$refs['urlUpdateForm'].resetFields();
+
+            this.urlUpdateVisible = false;
+            this.form.name='';
+            this.form.url='';
+            this.form.location='';
+        },
+        updateClick(rows){//更新当前行
+            //进行表单验证
+            var isPass;
+            this.$refs['urlUpdateForm'].validate(function (valid) {
+                isPass=valid;
+            });
+            if(!isPass) return;
+
+            console.dir(this.currentRow)
+            var this_=this;
+            util.ajax('/url/update',{
+                'id':this.form.id,
+                'pid':this.form.pid,
+                'name':this.form.name,
+                'url':this.form.url,
+                'location':this.form.location
+            },function (data) {
+                if(data!=null){
+                    console.dir(this_.type)
+                    if(this_.type!='search' && this_.currentRow.pid!=this_.form.pid){//如果是url管理界面,并且url位置改变,则删除
+                        rows.splice(this_.currentIndex,1);
+                    }else{
+                        this_.currentRow.pid=this_.form.pid;
+                        this_.currentRow.name=this_.form.name;
+                        this_.currentRow.url=this_.form.url;
+                        this_.currentRow.location=this_.form.location;
+                    }
+
+                    this_.urlUpdateVisible = false;
+                    this_.$message("更改成功!");
+                }
+            })
+        },
+        filterNode(value, data) {
+            if (!value) return true;
+            return data.name.indexOf(value) !== -1;
+        },
+        nodeClick(node){//可以接收三个参数
+            // console.dir(node)
+            this.form.pid=node.id;
+            this.form.location=node.name;
+            this.treeShowValue=false
+
+            console.dir('pid:'+this.form.pid)
+        },
+        defaultClick(){//自定义文件夹
+
+            common.loadNodeId(this);//加载自定义文件夹的id和name
+        },
+        search(){
+            var this_=this;
+            var url;
+            var data;
+            //请求表格数据
+            if(this.type=='search'){
+                console.dir(this_.keyword)
+                url='/url/queryAllLike';
+                data={
+                    'urlName':this_.keyword,
+                    'pageSize':this_.pageSize,
+                    'pageIndex':this_.pageIndex
+                }
+            }else{
+                console.dir(this_.currentNodeId)
+                url='/url/query';
+                data={
+                    'id':this_.currentNodeId,
+                    'pageSize':this_.pageSize,
+                    'pageIndex':this_.pageIndex
+                }
+            }
+
+            util.ajax(url,data,function (data) {
+                console.dir(data)
+                if(data!=null){
+                    this_.content=data.content;
+                }
+            })
+        }
+
+    },
+    watch:{
+        filterText(val) {
+            this.$refs.tree5.filter(val);
+        },
+        tableData(){
+            console.dir(this.tableData)
+            this.content=this.tableData.content;
+            this.pageSize=this.tableData.pageSize;
+            this.pageIndex=this.tableData.pageIndex;
+            this.totalSize=this.tableData.totalSize;
+        },
+        treeShowValue(){//更新文件夹数据
+
+            this.$refs.tree5.setCurrentKey(this.form.pid);//显示原来的文件夹的位置
+
+            if(this.treeShowValue){//当显示的时候,获取一下树数据
+
+                //如果mainVue没有数据,则请求一次,如果已经请求一次了,就是使用已经请求的
+                //如果mainVue有数据,则以mainVue为准
+                var this_=this;
+                var mainVue=top.window.mainVue;
+                if(mainVue.treeData.length==0){
+                    //请求树数据
+                    util.ajax('/folder/query',{},function (data) {
+                        if(data!=null){
+                            var treeData=buildTree(data);
+                            mainVue.treeData=treeData;//保存一份在mainVue中
+                            this_.treeData=treeData;
+                        }
+                    })
+                }else{
+                    this_.treeData=mainVue.treeData;//从mainVue中获取数据
+                }
+            }
+        }
+    }
+}
+
+var urlAddDialog={
+    // language=HTML
+    template:`
+        <el-dialog title="添加" :visible.sync="isShow" :close-on-click-modal="false" :showClose="false">
+            <el-form :model="form" :rules="rules" ref="urlAddForm">
+                <el-form-item label="网址名称" label-width="120px" prop="name">
+                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="网址链接" label-width="120px" prop="url">
+                    <el-input v-model="form.url" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="网址位置" label-width="120px" prop="location">
+                
+                    <input v-model="form.pid" style="display: none">
+                    
+                    <el-input v-model="form.location" placeholder="请选择文件夹" style="width: 50%" :disabled="true"></el-input>
+
+                    <el-popover
+                            placement="bottom-end"
+                            width="400"
+                            trigger="click"
+                            v-model="treeShowValue"
+                            >
+
+                        <div style="overflow:auto;width: 380px;height: 200px">
+                            <el-input placeholder="输入关键字进行过滤" v-model="filterText"></el-input>
+                            <el-tree
+                                    class="filter-tree"
+                                    :data="treeData"
+                                    :props="defaultProps"
+                                    default-expand-all
+                                    :highlight-current="true"
+                                    :expand-on-click-node="false"
+                                    :filter-node-method="filterNode"
+                                    @node-click="nodeClick"
+                                    node-key="id"
+                                    ref="tree1">
+                            </el-tree>
+                        </div>
+
+                        </el-table>
+                        <el-button slot="reference">选择文件夹</el-button>
+                    </el-popover>
+
+                    <el-button @click="defaultClick">自定义文件夹</el-button>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="cancleClick">取消</el-button>
+                <el-button type="primary" @click="addClick">添加</el-button>
+            </div>
+        </el-dialog>
+    `,
+    props:['isShow','form'],
+    methods:{
+        filterNode(value, data) {
+            if (!value) return true;
+            return data.name.indexOf(value) !== -1;
+        },
+        nodeClick(node){//可以接收三个参数
+            this.form.pid=node.id;
+            this.form.location=node.name;
+            this.treeShowValue=false
+
+            console.dir('pid:'+this.form.pid)
+        },
+        cancleClick(){
+            this.$refs['urlAddForm'].resetFields();
+            this.$emit('close');
+        },
+        addClick(){
+            //进行表单验证
+            var isPass;
+            this.$refs['urlAddForm'].validate(function (valid) {
+                isPass=valid;
+            });
+            if(!isPass) return;
+
+            var this_=this;
+            util.ajax("/url/save",{
+                'url':this.form.url,
+                'name':this.form.name,
+                'pid':this.form.pid,
+            },function (data) {
+                this_.$message(data.message);
+            })
+
+            this.$emit('close');
+        },
+        defaultClick(){//自定义文件夹
+
+            common.loadNodeId(this);//加载自定义文件夹的id和name
+        },
+    },
+    data(){
+        return{
+            filterText: '',
+            defaultProps: {
+                children: 'children',
+                label: 'name'
+            },
+            treeShowValue:false,
+            rules: {
+                name: [
+                    { required: true, message: '请输入网址名称', trigger: 'blur' },
+                    { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
+                ],
+                url: [
+                    { required: true, message: '请输入网址', trigger: 'blur' },
+                    { min: 1, max: 600, message: '长度在 1 到 600 个字符', trigger: 'blur' }
+                ],
+                location: [
+                    { required: true, message: '请选择网址位置', trigger: 'blur' },
+                ],
+            },
+            treeData:[],
+            nodeId:'',
+        }
+    },
+    mounted(){
+        common.loadTreeData(this);
+    },
+    watch: {
+        filterText(val) {
+            this.$refs.tree1.filter(val);
+        },
+        isShow(){//显示前清空表单
+            if(this.isShow==true){
+                this.form.name='';
+                this.form.url='';
+                this.form.location='默认文件夹';
+                this.form.pid=this.treeData[0].id;
+
+                this.filterText='';
+            }
+        },
+        treeShowValue(){//更新文件夹数据
+            if(this.treeShowValue){//当显示的时候,获取一下树数据
+
+                common.loadTreeData(this);
+
+            }
+        }
+    },
+}
+
+var folderAddDialog={
+    // language=HTML
+    template:`
+        <!-- 文件夹添加窗口 -->
+        <el-dialog title="添加" :visible.sync="isShow" :close-on-click-modal="false" :center="false" :showClose="false">
+            <el-form :model="form" :rules="rules" ref="folderAddForm">
+                <el-form-item label="文件夹名称" label-width="120px" prop="name">
+                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="文件夹位置" label-width="120px" prop="location">
+
+                    <input style="display: none" v-model="form.pid">
+                    
+                    <el-input v-model="form.location" placeholder="请选择文件夹" style="width: 50%" :disabled="true"></el-input>
+
+                    <el-popover
+                            placement="bottom-end"
+                            width="400"
+                            trigger="click"
+                            v-model="treeShowValue"
+                            >
+
+                        <div style="overflow:auto;width: 380px;height: 200px">
+                            <el-input placeholder="输入关键字进行过滤" v-model="filterText"></el-input>
+                            <el-tree
+                                    class="filter-tree"
+                                    :data="treeData"
+                                    :props="defaultProps"
+                                    default-expand-all
+                                    :highlight-current="true"
+                                    :expand-on-click-node="false"
+                                    :filter-node-method="filterNode"
+                                    @node-click="nodeClick"
+                                    node-key="id"
+                                    ref="tree3"
+                                    
+                                    >
+                            </el-tree>
+                        </div>
+
+                        </el-table>
+                        <el-button slot="reference">选择文件夹</el-button>
+                    </el-popover>
+
+                    <el-button @click="defaultClick">自定义文件夹</el-button>
+
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="cancleClick">取消</el-button>
+                <el-button type="primary" @click="addClick">添加</el-button>
+            </div>
+        </el-dialog>
+    `,
+    props:['isShow','treeData','form'],
+    data(){
+        return{
+            filterText: '',
+            defaultProps: {
+                children: 'children',
+                label: 'name'
+            },
+            treeShowValue:false,
+            rules: {
+                name: [
+                    { required: true, message: '请输入文件夹名称', trigger: 'blur' },
+                    { min: 1, max: 255, message: '长度在 1 到 255 个字符', trigger: 'blur' }
+                ],
+                location: [
+                    { required: true, message: '请选择文件夹位置', trigger: 'blur' },
+                ],
+            }
+        }
+    },
+    methods:{
+        cancleClick(){
+            this.$refs['folderAddForm'].resetFields();
+            this.$emit('close',null);
+        },
+        addClick(){
+            //进行表单验证
+            var isPass;
+            this.$refs['folderAddForm'].validate(function (valid) {
+                isPass=valid;
+            });
+            if(!isPass) return;
+
+            var this_=this;
+            //发送添加请求,返回文件夹id
+            util.ajax('/folder/insertChildren',{'name':this.form.name,'pid':this.form.pid},function (data) {
+                if(data==null) return;
+                util.ajax('folder/query',{},function (data) {
+                    this_.$emit('close',data);//发布关闭事件,并把返回的node添加到父组件上
+                })
+            });
+        },
+        filterNode(value, data) {
+            if (!value) return true;
+            return data.name.indexOf(value) !== -1;
+        },
+        nodeClick(node){//可以接收三个参数
+            this.form.pid=node.id;//设置pid参数
+            this.form.location=node.name;
+            this.treeShowValue=false
+
+            console.dir('pid:'+this.form.pid)
+        },
+        defaultClick(){//自定义文件夹
+
+            common.loadNodeId(this);//加载自定义文件夹的id和name
+        }
+    },
+    watch:{
+        filterText(val) {
+            this.$refs.tree3.filter(val);
+        },
+        isShow(){
+            //if(this.isShow==true){//默认选中默认文件夹
+            //    this.form.pid=this.treeData[0].id;
+            //    this.form.name='';
+            //    this.form.location='默认文件夹';
+            //}
+        },
+    }
+
+
+}
+
+var folderUpdateDialog={
+    // language=HTML
+    template:`
+        <!-- 文件夹添加窗口 -->
+        <el-dialog title="更改" :visible.sync="isShow" :close-on-click-modal="false" :center="false" :showClose="false">
+            <el-form :model="form" :rules="rules" ref="folderUpdateForm">
+                <input style="display: none" v-model="form.id">
+                <input style="display: none" v-model="form.pid">
+                <el-form-item label="文件夹名称" label-width="120px" prop="name">
+                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="文件夹位置" label-width="120px" prop="location">
+
+                    <el-input v-model="form.location" placeholder="请选择文件夹" style="width: 50%" :disabled="true"></el-input>
+
+                    <el-popover
+                            placement="bottom-end"
+                            width="400"
+                            trigger="click"
+                            v-model="treeShowValue"
+                            >
+
+                        <div style="overflow:auto;width: 380px;height: 200px">
+                            <el-input placeholder="输入关键字进行过滤" v-model="filterText"></el-input>
+                            <el-tree
+                                    class="filter-tree"
+                                    :data="treeData"
+                                    :props="defaultProps"
+                                    default-expand-all
+                                    :highlight-current="true"
+                                    :expand-on-click-node="false"
+                                    :filter-node-method="filterNode"
+                                    @node-click="nodeClick"
+                                    ref="tree4"
+                                    node-key="id"
+                                    >
+                            </el-tree>
+                        </div>
+
+                        <el-button slot="reference">选择文件夹</el-button>
+                    </el-popover>
+
+                    <el-button @click="defaultClick">自定义文件夹</el-button>
+
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="cancleClick">取消</el-button>
+                <el-button type="primary" @click="updateClick">更改</el-button>
+            </div>
+        </el-dialog>
+    `,
+    props:['isShow','treeData','form','ids'],
+    data(){
+        return{
+            filterText: '',
+            defaultProps: {
+                children: 'children',
+                label: 'name'
+            },
+            treeShowValue:false,
+            rules: {
+                name: [
+                    { required: true, message: '请输入文件夹名称', trigger: 'blur' },
+                    { min: 1, max: 255, message: '长度在 1 到 255 个字符', trigger: 'blur' }
+                ],
+                location: [
+                    { required: true, message: '请选择文件夹位置', trigger: 'blur' },
+                ],
+            }
+        }
+    },
+    methods:{
+        cancleClick(){
+            this.$refs['folderUpdateForm'].resetFields();
+            this.$emit('close',null);
+        },
+        updateClick(){
+            //进行表单验证
+            var isPass;
+            this.$refs['folderUpdateForm'].validate(function (valid) {
+                isPass=valid;
+            });
+            if(!isPass) return;
+
+
+            var this_=this;
+            util.ajax('folder/update',{'id':this.form.id,'name':this.form.name,'pid':this.form.pid},function (data) {
+                if(data==null) return;
+                util.ajax('folder/query',{},function (data) {
+                    this_.$emit('close',data);
+                })
+            })
+        },
+        filterNode(value, data) {
+            if (!value) return true;
+            return data.name.indexOf(value) !== -1;
+        },
+        nodeClick(node){//可以接收三个参数
+            console.dir(node)
+
+            console.dir(node.id)
+            for(var i=0;i<this.ids.length;i++){
+                if(node.id==this.ids[i]){
+                    this.$message.error({message:"不能选择本身及子结点",duration:1000});
+                    return;
+                }
+            }
+
+            this.form.pid=node.id;
+            this.form.location=node.name;
+            this.treeShowValue=false
+
+            console.dir('pid:'+this.form.pid)
+        },
+        defaultClick(){//自定义文件夹
+
+            var mainVue=common.getMainVue();
+
+            //判断是否是本身或者是子结点
+            for(var i=0;i<this.ids.length;i++){
+                if(mainVue.nodeId==this.ids[i]){
+                    this.$message.error({message:"不能选择本身及子结点",duration:1000});
+                    return;
+                }
+            }
+
+            common.loadNodeId(this);//加载自定义文件夹的id和name
+
+        }
+    },
+    watch:{
+        filterText(val) {
+            this.$refs.tree4.filter(val);
+        },
+    }
+
+
+}
+

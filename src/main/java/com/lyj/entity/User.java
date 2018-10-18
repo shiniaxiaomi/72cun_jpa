@@ -26,6 +26,12 @@ public class User {
     @OneToMany(mappedBy = "user")
     private Set<URL> urls=new HashSet<>();
 
+    @OneToMany(mappedBy = "user")
+    private Set<Folder> folders=new HashSet<>();
+
+    @OneToOne(mappedBy = "user")
+    private UserSettings userSettings;
+
     public User() {
     }
 
@@ -40,6 +46,22 @@ public class User {
 
     public Integer getId() {
         return id;
+    }
+
+    public Set<URL> getUrls() {
+        return urls;
+    }
+
+    public void setUrls(Set<URL> urls) {
+        this.urls = urls;
+    }
+
+    public Set<Folder> getFolders() {
+        return folders;
+    }
+
+    public void setFolders(Set<Folder> folders) {
+        this.folders = folders;
     }
 
     public void setId(Integer id) {

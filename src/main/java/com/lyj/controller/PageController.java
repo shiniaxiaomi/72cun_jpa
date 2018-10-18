@@ -23,4 +23,14 @@ public class PageController {
         return "111";
     }
 
+    @RequestMapping("/searchUrl")
+    public String searchUrl(){
+        return "searchUrl";
+    }
+
+    @RequestMapping("/urlManager")
+    public String urlManager(){
+        return "urlManager";
+    }
+
 }

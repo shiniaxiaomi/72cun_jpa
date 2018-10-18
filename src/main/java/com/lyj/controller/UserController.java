@@ -1,12 +1,16 @@
 package com.lyj.controller;
 
+import com.lyj.entity.Folder;
 import com.lyj.entity.Result;
 import com.lyj.entity.URL;
 import com.lyj.entity.User;
+import com.lyj.service.FolderService;
 import com.lyj.service.URLService;
 import com.lyj.service.UserService;
+import com.lyj.service.UserSettingsService;
 import com.lyj.util.ResultUtil;
 import com.lyj.util.StringUtil;
+import com.lyj.util.VarUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +38,12 @@ public class UserController {
     @Autowired
     URLService urlService;
 
+    @Autowired
+    FolderService folderService;
+
+    @Autowired
+    UserSettingsService userSettingsService;
+
 
     /**
      * 注册用户
@@ -46,6 +56,9 @@ public class UserController {
             if(!userService.isExists(user)){//判断是否已经存在该用户名
                 User saveUser = userService.saveUser(user);
                 if(saveUser!=null) {//保存成功
+                    folderService.insertDefaultFolder(saveUser);//创建一个默认的文件夹
+                    userSettingsService.add(saveUser);
+
                     return ResultUtil.success("注册成功");
                 }
             }else{
@@ -85,19 +98,18 @@ public class UserController {
     @ResponseBody
     @RequestMapping("/login")
     public Result login(User user, HttpSession session){
-//        User sessionUser = (User) session.getAttribute("user");
-//        if(sessionUser!=null){//说明用户已经存在
-//            return ResultUtil.success();
-//        }else{
-//            User loginedUser = userService.login(user);
-//            if(loginedUser!=null){
-                session.setAttribute("user",user);
-//                return ResultUtil.success("登入成功");
-//            }else{
-//                return ResultUtil.error("用户名或密码错误");
-//            }
-//        }
-        return ResultUtil.success("登入成功");
+        User sessionUser = (User) session.getAttribute("user");
+        if(sessionUser!=null){//说明用户已经存在
+            return ResultUtil.success();
+        }else{
+            User loginedUser = userService.login(user);
+            if(loginedUser!=null){
+                session.setAttribute("user",loginedUser);
+                return ResultUtil.success("登入成功");
+            }else{
+                return ResultUtil.error("用户名或密码错误");
+            }
+        }
     }
 
     /**
