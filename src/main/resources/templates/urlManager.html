@@ -200,11 +200,12 @@
                         pid:node.data.id
                     }
                 }else{
+                    var mainVue=common.getMainVue();
                     this.form={
                         id:'',
                         name:'',
-                        location:'',
-                        pid:''
+                        location:'默认文件夹',
+                        pid:mainVue.rootFolderId
                     }
                 }
 
@@ -214,14 +215,14 @@
                 var key=this.$refs.tree2.getCurrentKey();
                 console.dir(key)
                 if(key==null){
-                    this.$message.error("请选择要更改的文件夹");
+                    util.message(this,'请选择要更改的文件夹','error');
                     return;
                 }
 
                 var node = this.$refs.tree2.getNode(key);
 
                 if(node.data.pid==0){
-                    this.$message.error("不能更改根文件夹");
+                    util.message(this,'不能更改根文件夹','error');
                     return;
                 }
 
@@ -246,7 +247,7 @@
                 var nodeKey=this.$refs.tree2.getCurrentKey();
 
                 if(nodeKey==null){
-                    this.$message.error("请选择要删除的文件夹");
+                    util.message(this,'请选择要删除的文件夹','error');
                     return;
                 }
 
@@ -271,7 +272,7 @@
                 var node = this.$refs.tree2.getNode(nodeKey);
 
                 if(node.data.pid==0){
-                    this.$message.error("不能删除根文件夹");
+                    util.message(this,'不能删除根文件夹','error');
                     return;
                 }
 
@@ -288,10 +289,10 @@
                             mainVue.nodeName='默认文件夹';
 
                             this_.$refs.tree2.setCurrentKey(null);
-                            this_.$message("删除成功!");
+                            util.message(this_,'删除成功!');
                         })
                     }else{
-                        this_.$message.error(data.message);
+                        util.message(this_,data.message,'error');
                     }
                 })
             },
@@ -304,7 +305,7 @@
 
                 this.$refs.tree2.setCurrentKey(null);
 
-                this.$message("添加成功!");
+                util.message(this,'添加成功!');
                 this.isAddShow=false;
             },
             folderUpdateClick(data){//更新文件夹
@@ -317,14 +318,14 @@
 
                 this.$refs.tree2.setCurrentKey(null);
 
-                this.$message("更改成功!");
+                util.message(this,'更改成功!');
                 this.isUpdateShow=false
             },
             setDafaultClick(){
                 var nodeKey=this.$refs.tree2.getCurrentKey();
 
                 if(nodeKey==null){
-                    this.$message.error("请选择要自定义的文件夹");
+                    util.message(this,'请选择要自定义的文件夹!','error');
                     return;
                 }
 
@@ -334,7 +335,7 @@
                 util.ajax('/userSettings/update',{'defaultFolderId':this_.$refs.tree2.getCurrentKey()},function (data) {
                     mainVue.nodeId=data.data.defaultFolderId;
                     mainVue.nodeName=data.data.defaultFolderName;
-                    this_.$message("自定义文件夹设置成功!");
+                    util.message(this_,'自定义文件夹设置成功!');
                 });
 
             },
