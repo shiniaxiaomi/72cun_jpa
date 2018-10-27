@@ -9,6 +9,7 @@ import com.lyj.util.PageEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -36,7 +37,9 @@ public class URLController {
     public PageEntity<URL> findByFolder(Folder folder,Integer pageSize,Integer pageIndex, HttpSession session){
         User user = (User) session.getAttribute("user");
 
-        PageRequest pageRequest = PageRequest.of(pageIndex-1, pageSize);
+        Sort sort = new Sort(Sort.Direction.DESC, "createTime");
+
+        PageRequest pageRequest = PageRequest.of(pageIndex-1, pageSize,sort);
         Page<URL> urls = urlService.findByFolder(user.getId(),folder,pageRequest);
         PageEntity<URL> pageEntity=new PageEntity<>(urls);
 
@@ -48,7 +51,9 @@ public class URLController {
     public PageEntity<URL> queryAllLike(String urlName, Integer pageSize, Integer pageIndex, HttpSession session){
         User user = (User) session.getAttribute("user");
 
-        PageRequest pageRequest = PageRequest.of(pageIndex-1, pageSize);
+        Sort sort = new Sort(Sort.Direction.DESC, "createTime");
+
+        PageRequest pageRequest = PageRequest.of(pageIndex-1, pageSize,sort);
         Page<URL> urls = urlService.queryAll(user.getId(), urlName, pageRequest);
         PageEntity<URL> pageEntity=new PageEntity<>(urls);
         return pageEntity;

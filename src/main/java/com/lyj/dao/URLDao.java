@@ -23,7 +23,7 @@ public interface URLDao extends JpaRepository<URL,Integer>{
 
 //    List<URL> findURLSByFolder_IdAndUser_Id(Integer userId, Integer folderId);
 
-    @Query("select new URL(url.id,url.name,url.url,folder.id,folder.name)  from URL url join url.user user join url.folder folder where user.id=:userId and folder.id=:folderId")
+    @Query("select new URL(url.id,url.name,url.url,url.createTime,folder.id,folder.name)  from URL url join url.user user join url.folder folder where user.id=:userId and folder.id=:folderId")
     Page<URL> findByFolder(@Param("userId") Integer userId,@Param("folderId") Integer folderId,Pageable pageable);
 
 
@@ -35,7 +35,7 @@ public interface URLDao extends JpaRepository<URL,Integer>{
 //    @Query("select new com.lyj.entity.pojo.URL_POJO(url.id,url.name,url.url,folder.id,folder.name) from URL url join url.user user join url.folder folder where user.id=:userId and folder.id=:folderId")
 //    @Query(value = "select u.id,u.name,u.url,u.folder_id,u.user_id from url u where u.user_id=:userId and u.name like :urlName",nativeQuery = true)
 
-    @Query("select new URL(url.id,url.name,url.url,folder.id,folder.name) from URL url join url.user user " +
+    @Query("select new URL(url.id,url.name,url.url,url.createTime,folder.id,folder.name) from URL url join url.user user " +
             "join url.folder folder where user.id=:userId and url.name like :urlName")
     Page<URL> findAllByUser_IdAndNameLike(@Param("userId") Integer userId, @Param("urlName") String urlName, Pageable pageable);
 

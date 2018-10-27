@@ -1,8 +1,12 @@
 package com.lyj.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by 陆英杰
@@ -18,6 +22,10 @@ public class URL {
     private String name;
 
     private String url;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")	//Hibernate中@ResponseBody返回的时间格式
+    private Date createTime;//创建时间
 
     @JsonIgnore
     @ManyToOne
@@ -35,7 +43,6 @@ public class URL {
     @Transient
     private String location;
 
-
     public URL() {
     }
 
@@ -51,12 +58,21 @@ public class URL {
         this.folder = folder;
     }
 
-    public URL(Integer id,String name, String url, Integer pid, String location) {
+    public URL(Integer id,String name, String url,Date createTime, Integer pid, String location) {
         this.id=id;
         this.name = name;
         this.url = url;
+        this.createTime=createTime;
         this.pid = pid;
         this.location = location;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
     public Integer getId() {
