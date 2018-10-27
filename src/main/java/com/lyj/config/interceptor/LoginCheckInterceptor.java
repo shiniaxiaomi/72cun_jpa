@@ -24,12 +24,13 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         User user = (User) session.getAttribute("user");
         //如果用户没有登入,返回登入页面
         if(user==null){
+            response.setHeader("Content-Type","text/html;charset=UTF-8");
             response.sendRedirect("/");//重新请求到登入页面
 
-            System.out.println("拦截了: "+request.getRequestURL().toString()+" 请求");
+            System.out.println("intercept: "+request.getRequestURL().toString()+" request");
             return false;
         }
-        System.out.println("通过了: "+request.getRequestURL().toString()+" 请求");
+        System.out.println("pass: "+request.getRequestURL().toString()+" request");
         return true;
     }
 
