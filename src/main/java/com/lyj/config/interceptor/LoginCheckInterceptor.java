@@ -18,14 +18,20 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
      * 在请求前处理
      * response.sendRedirect("/index.html");//url: http://localhost:8087/index.html
      */
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         //如果用户没有登入,返回登入页面
         if(user==null){
-            response.setHeader("Content-Type","text/html;charset=UTF-8");
-            response.sendRedirect("/");//重新请求到登入页面
+            String requestWith = request.getHeader("X-Requested-With");//获取头信息,用来判断是ajax请求还是页面请求
+
+            if("XMLHttpRequest".equals(requestWith)){//如果是ajax
+                response.setStatus(309);//设置错误码,然后在客户端进行重定向
+            }else{//如果是页面请求
+                response.sendRedirect("/");//重新请求到登入页面
+            }
 
             System.out.println("intercept: "+request.getRequestURL().toString()+" request");
             return false;

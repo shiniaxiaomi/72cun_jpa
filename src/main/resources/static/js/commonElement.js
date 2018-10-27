@@ -105,7 +105,10 @@ var util={
             dataType: 'json',
             data: data,
             error: function (data) {
-                alert("失败!");
+                if(data.status==309){//自己设置的错误码,表示session失效
+                    console.dir("session 失效")
+                    top.window.location.href='/';//发生错误之后,就直接重定向到登入页面,一般是session失效了
+                }
                 console.dir("传输失败!")
                 console.dir(data);//请求失败时被调用的函数
                 console.dir("传输失败!")
