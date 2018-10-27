@@ -77,7 +77,7 @@
 
         <el-form :model="form" :rules="rules" ref="loginForm" :status-icon="true" :show-message="false">
             <el-form-item prop="userName" >
-                <el-input v-model="form.userName" @keyup.enter.native="loginClick">
+                <el-input v-model="form.userName" :autofocus="true" @keyup.enter.native="loginClick">
                     <i slot="prefix" class="el-input__icon"><img src="/icon/用户名.svg" draggable='false'></i>
                 </el-input>
             </el-form-item>
