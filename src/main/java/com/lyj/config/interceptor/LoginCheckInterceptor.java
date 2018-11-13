@@ -4,6 +4,7 @@ import com.lyj.entity.User;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -22,6 +23,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         HttpSession session = request.getSession();
+        //查看cookie
         User user = (User) session.getAttribute("user");
         //如果用户没有登入,返回登入页面
         if(user==null){
@@ -30,6 +32,10 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             if("XMLHttpRequest".equals(requestWith)){//如果是ajax
                 response.setStatus(309);//设置错误码,然后在客户端进行重定向
             }else{//如果是页面请求
+                Cookie cookie=new Cookie("121","2121");
+                cookie.setMaxAge(60);
+                response.addCookie(new Cookie("url","fghfgh"));
+                response.addCookie(new Cookie("title","dsfsdfdfs"));
                 response.sendRedirect("/");//重新请求到登入页面
             }
 
