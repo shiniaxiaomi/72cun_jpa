@@ -96,13 +96,31 @@
 
 </div>
 
+<a href="" id="collection">72cun:快速收藏网址</a>
+
 </body>
 </html>
 
-
-
-
 <script>
+
+    var str = `
+        javascript:(function (x, sc, width, height) {
+        var newWin = window.open('', '_blank', 'toolbar=yes, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=' + width + ', height=' + height + ',left=' + (sc.width - width) / 2 + ',top=' + (sc.height - 50 - height) / 2);
+        var formStr = '';
+        formStr = "<form style='visibility:hidden;' method='POST' action='https://localhost/collection/url'>"+
+                    "<input type='hidden' name='url' value='[url]' />"+
+                    "<input type='hidden' name='title' value='[title]' />"+
+                  "</form>";
+        formStr=formStr.replace('[url]', encodeURIComponent(location.href))
+            .replace('[title]', encodeURIComponent(x.title));
+        newWin.document.body.innerHTML = formStr;
+        newWin.document.forms[0].submit();
+        return newWin;
+    })(document, screen, 1250, 660);
+    `;
+    document.getElementById('collection').href=str;
+
+
     var vue=new Vue({
         el:'#app',
         data:{
@@ -174,13 +192,20 @@
                     data:{userName:this.form.userName,password:this.form.password},
                     success:function (data) {
                         if(data.code==200){
-                            //跳转页面
-                            window.location.href="/user/main"
+                            <#if url=="">
+                                window.location.href="/user/main";//页面跳转
+                            <#else>
+                                window.location.href="/collection/url";//页面跳转
+                            </#if>
                         }else{
                             vue.$message.error(data.message);
                         }
                     }
                 });
+
+
+
+
 
             },
             backClick(){
@@ -191,6 +216,11 @@
                 this.isBack=false;
             },
         },
+        mounted:function () {
+            if(this.form.userName!="" && this.form.password!=""){
+                this.loginClick();
+            }
+        }
     })
 
 

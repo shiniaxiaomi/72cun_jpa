@@ -29,7 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(new LoginCheckInterceptor()).addPathPatterns("/**")
 //                .excludePathPatterns("/index/**","/res/**","/scripts/**")//排除url请求是以index,res,scripts开头的静态文件
                 .excludePathPatterns("/js/**","/icon/**")//排除url请求是以js,icon开头的静态文件
-                .excludePathPatterns("/user/login","/user/save","/index","/login","/")//排除登入和注册请求
+                .excludePathPatterns("/user/login","/user/save","/index","/login","/","/collection/url")//排除登入和注册请求,还有收藏
                 ;
     }
 
