@@ -123,9 +123,14 @@
                 index:'2',
                 id:'urlManagerVue'
             },{
+                title: '快速收藏',
+                url:'/fastCollectionPage',
+                index:'3',
+                id:'fastCollectionPage'
+            },{
                 title: '关于本站',
                 url:'/aboutMe.html',
-                index:'3',
+                index:'4',
                 id:'aboutMe'
             }],
 
@@ -204,7 +209,7 @@
 
     //当页面加载完成之后
     $(function(){
-        mainVue.addTab('主页','/searchUrl','1');//默认加载主页
+        mainVue.addTab('主页','/searchUrl','searchVue');//默认加载主页
     });
 
 

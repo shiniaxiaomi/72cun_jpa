@@ -24,6 +24,7 @@ public interface FolderDao extends JpaRepository<Folder,Integer> {
     public void updateFolderNumById(@Param("num") Integer folderNum,@Param("id") Integer folderId);
 
 
+    //根据用户和pid获取文件夹
     public Folder findFolderByUser_IdAndPid(Integer userId,Integer pid);
 
 }

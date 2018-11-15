@@ -139,4 +139,9 @@ public class FolderService {
 
         return ResultUtil.success("更改成功!");
     }
+
+    public int getRootFolderId(User user) {
+        Folder folder = folderDao.findFolderByUser_IdAndPid(user.getId(), 0);
+        return folder.getId();
+    }
 }

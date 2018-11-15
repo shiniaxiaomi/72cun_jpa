@@ -77,7 +77,7 @@
 
         <el-form :model="form" :rules="rules" ref="loginForm" :status-icon="true" :show-message="false">
             <el-form-item prop="userName" >
-                <el-input v-model="form.userName" :autofocus="true" @keyup.enter.native="loginClick">
+                <el-input v-model="form.userName" @keyup.enter.native="loginClick" >
                     <i slot="prefix" class="el-input__icon"><img src="/icon/用户名.svg" draggable='false'></i>
                 </el-input>
             </el-form-item>
@@ -96,30 +96,12 @@
 
 </div>
 
-<a href="" id="collection">72cun:快速收藏网址</a>
+
 
 </body>
 </html>
 
 <script>
-
-    var str = `
-        javascript:(function (x, sc, width, height) {
-        var newWin = window.open('', '_blank', 'toolbar=yes, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=' + width + ', height=' + height + ',left=' + (sc.width - width) / 2 + ',top=' + (sc.height - 50 - height) / 2);
-        var formStr = '';
-        formStr = "<form style='visibility:hidden;' method='POST' action='https://localhost/collection/url'>"+
-                    "<input type='hidden' name='url' value='[url]' />"+
-                    "<input type='hidden' name='title' value='[title]' />"+
-                  "</form>";
-        formStr=formStr.replace('[url]', encodeURIComponent(location.href))
-            .replace('[title]', encodeURIComponent(x.title));
-        newWin.document.body.innerHTML = formStr;
-        newWin.document.forms[0].submit();
-        return newWin;
-    })(document, screen, 1250, 660);
-    `;
-    document.getElementById('collection').href=str;
-
 
     var vue=new Vue({
         el:'#app',
@@ -202,11 +184,6 @@
                         }
                     }
                 });
-
-
-
-
-
             },
             backClick(){
 
@@ -214,12 +191,9 @@
 
                 this.isLogin=true;
                 this.isBack=false;
-            },
+            }
         },
         mounted:function () {
-            if(this.form.userName!="" && this.form.password!=""){
-                this.loginClick();
-            }
         }
     })
 

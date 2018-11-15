@@ -32,13 +32,19 @@ function buildTree(data) {
 
 //公共数据方法
 var common={
-    //加载文件夹数据,并保存在公共区
+    //获取文件夹数据
     loadTreeData:function (this_) {
         //如果mainVue没有数据,则请求一次,如果已经请求一次了,就是使用已经请求的
         //如果mainVue有数据,则以mainVue为准
         var mainVue=top.window.mainVue;
-        if(mainVue.treeData.length==0){
-            //请求树数据
+        if(mainVue==undefined){//没有定义,则是快捷收藏
+            util.ajax('/folder/query',{},function (data) {
+                if(data!=null){
+                    this_.treeData= buildTree(data);
+                }
+            })
+        }else if(mainVue.treeData.length==0){
+            //请求树数据,,并保存在公共区
             util.ajax('/folder/query',{},function (data) {
                 if(data!=null){
                     var treeData=buildTree(data);
@@ -63,14 +69,20 @@ var common={
         var mainVue=top.window.mainVue;
         return mainVue;
     },
-
-
     //加载自定义文件夹id
     loadNodeId:function (this_) {
         //如果mainVue没有数据,则请求一次,如果已经请求一次了,就是使用已经请求的
         //如果mainVue有数据,则以mainVue为准
         var mainVue=top.window.mainVue;
-        if(mainVue.nodeId=='') {//如果公共区没有数据,加载并赋值
+        if(mainVue==undefined){//没有定义,则是快捷收藏
+            util.ajax("/userSettings/query", {}, function (data) {
+                if (data != null) {
+                    this_.form.pid=data.defaultFolderId;
+                    this_.form.location=data.defaultFolderName;
+                    this_.$forceUpdate();//手动更新数据
+                }
+            });
+        }else if(mainVue.nodeId==''){//如果公共区没有数据,加载并赋值
             //请求自定义文件夹id
             util.ajax("/userSettings/query", {}, function (data) {
                 if (data != null) {
@@ -85,9 +97,6 @@ var common={
             this_.form.location=mainVue.nodeName;//从公共数据区获取
         }
     },
-
-
-
 }
 
 
@@ -355,13 +364,13 @@ var urlTable={
 var urlAddDialog={
     // language=HTML
     template:`
-        <el-dialog title="添加" :visible.sync="isShow" :close-on-click-modal="false" :showClose="false">
+        <el-dialog title="添加" :visible.sync="isShow" :close-on-click-modal="false" :showClose="false" width="700px">
             <el-form :model="form" :rules="rules" ref="urlAddForm">
                 <el-form-item label="网址名称" label-width="120px" prop="name">
-                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                    <el-input v-model="form.name" autocomplete="off" style="width: 90%"></el-input>
                 </el-form-item>
                 <el-form-item label="网址链接" label-width="120px" prop="url">
-                    <el-input v-model="form.url" autocomplete="off"></el-input>
+                    <el-input v-model="form.url" autocomplete="off" style="width: 90%"></el-input>
                 </el-form-item>
                 
                 <el-form-item label="网址位置" label-width="120px" prop="location">
@@ -382,6 +391,8 @@ var urlAddDialog={
             this.$emit('close');
         },
         addClick(){
+            var _this=this;
+
             //进行表单验证
             var isPass;
             this.$refs['urlAddForm'].validate(function (valid) {
@@ -396,6 +407,10 @@ var urlAddDialog={
                 'pid':this.form.pid,
             },function (data) {
                 util.message(this_,data.message);
+                setTimeout(function () {//一秒钟后关闭浏览器
+                    _this.$emit('finished',data);
+                },1000);
+
             })
 
             this.$emit('close');
@@ -424,6 +439,7 @@ var urlAddDialog={
     },
     watch: {
         isShow(){//显示前清空表单
+            console.dir(this.isShow)
             if(this.isShow==true){
                 this.form.name='';
                 this.form.url='';
@@ -577,7 +593,7 @@ Vue.component('folderLocation',{
     template:`
         <div>
             <input v-model="form.pid" style="display: none">
-            <el-input v-model="form.location" placeholder="请选择文件夹" style="width: 50%" :disabled="true"></el-input>
+            <el-input v-model="form.location" placeholder="请选择文件夹" style="width: 200px" :disabled="true"></el-input>
 
             <el-popover placement="bottom-end" width="400" trigger="click" v-model="treeShowValue" >
 
@@ -652,24 +668,8 @@ Vue.component('folderLocation',{
             this.filterText='';//清除搜索数据
 
             if(this.treeShowValue){//当显示的时候,获取一下树数据
-
-                //如果mainVue没有数据,则请求一次,如果已经请求一次了,就是使用已经请求的
-                //如果mainVue有数据,则以mainVue为准
-                var this_=this;
-                var mainVue=top.window.mainVue;
-                if(mainVue.treeData.length==0){
-                    //请求树数据
-                    util.ajax('/folder/query',{},function (data) {
-                        if(data!=null){
-                            var treeData=buildTree(data);
-                            mainVue.treeData=treeData;//保存一份在mainVue中
-                            this_.treeData=treeData;
-                        }
-                    })
-                }else{
-                    this_.treeData=mainVue.treeData;//从mainVue中获取数据
-                }
+                common.loadTreeData(this);//自动加载数据
             }
-        }
+        },
     }
 })

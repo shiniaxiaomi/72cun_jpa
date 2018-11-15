@@ -19,12 +19,6 @@ public class PageController {
         return mv;
     }
 
-
-    @RequestMapping("/111")
-    public String aaa(){
-        return "111";
-    }
-
     @RequestMapping("/searchUrl")
     public String searchUrl(){
         return "searchUrl";
@@ -33,6 +27,11 @@ public class PageController {
     @RequestMapping("/urlManager")
     public String urlManager(){
         return "urlManager";
+    }
+
+    @RequestMapping("/fastCollectionPage")
+    public String fastCollectionPage(){
+        return "fastCollectionPage";
     }
 
 }

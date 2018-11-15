@@ -17,12 +17,9 @@
 <body>
 
     <div id="collection">
-        凄凄切切
 
-        ${url}</br>
-
-
-        ${title}
+        <url-add-dialog :is-show="dialogAddFormVisible" :form="form" @close="close"
+            @finished="finished"></url-add-dialog>
 
     </div>
 
@@ -36,28 +33,40 @@
     var collectionVue=new Vue({
         el:'#collection',
         components:{
-//            urlTable,
-//            folderAddDialog,
-//            folderUpdateDialog,
+            urlAddDialog,
         },
         watch: {
         },
         methods: {
+            finished(data){
+                if(data.code==200){
+                    window.close();
+                }else{
+                    alert("收藏失败,请重新再试!");
+                }
+            },
+            close:function () {
+                this.dialogAddFormVisible=false;
+                window.close();
+            }
         },
         data: {
+            dialogAddFormVisible:true,
+            form:{
+                name:"${title}",
+                url:"${url}",
+                location:'默认文件夹',
+                pid:0
+            },
         },
-        mounted(){//数据初始化
-//            var this_=this;
-//            util.ajax("/userSettings/query",{},function (data) {//初始化自定义文件夹的id
-//                if(data!=null){
-//                    this_.nodeId=data.defaultFolderId;
-//                }
-//            });
-//
-//            //请求文件夹数据
-//            common.loadTreeData(this);
-        }
-
+        created(){//在挂载之前,获取数据,并修改data
+            var _this=this;
+            util.ajax("/folder/getRootFolderId",{},function (data) {
+                if(data!=null){
+                    _this.form.pid=data;
+                }
+            })
+        },
     })
 
 </script>

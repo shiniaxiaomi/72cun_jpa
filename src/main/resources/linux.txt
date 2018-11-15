@@ -7,7 +7,8 @@ ps -ef | grep 72cun
 kill -9 8080
 
 运行
-java -jar /72cun/72cun-1.2.2-SNAPSHOT.jar --spring.profiles.active=prod
+java -jar /72cun/72cun-1.2.5-SNAPSHOT.jar --spring.profiles.active=prod
 
 查看输出日志
-strace  -e trace=write -s 200 -f -p 30998
+vi /72cun/nohup.out
+#strace  -e trace=write -s 200 -f -p 30998

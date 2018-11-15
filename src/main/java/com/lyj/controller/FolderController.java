@@ -63,6 +63,11 @@ public class FolderController {
         return folderService.update(folder);
     }
 
+    @RequestMapping("/getRootFolderId")
+    public int getRootFolderId(HttpSession session){
+        User user = (User) session.getAttribute("user");
+        return folderService.getRootFolderId(user);
+    }
 
 
 }
