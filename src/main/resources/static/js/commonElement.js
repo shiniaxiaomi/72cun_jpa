@@ -419,8 +419,6 @@ var urlAddDialog={
                 },1000);
 
             })
-
-            this.$emit('close');
         },
     },
     data(){
