@@ -1,4 +1,4 @@
-打包,通过winscp上传文件,不要删除上一次发布的文件,等到下一次在发布的时候删除
+﻿打包,通过winscp上传文件,不要删除上一次发布的文件,等到下一次在发布的时候删除
 
 ,打开xshell,查看72村运行的进程,进程是第一个
 ps -ef | grep 72cun
@@ -7,8 +7,7 @@ ps -ef | grep 72cun
 kill -9 8080
 
 运行
-java -jar /72cun/72cun-1.2.5-SNAPSHOT.jar --spring.profiles.active=prod
+nohup java -jar /72cun/72cun-1.2.2-SNAPSHOT.jar --spring.profiles.active=prod >>  /72cun/temp.log 2>&1
 
 查看输出日志
-vi /72cun/nohup.out
-#strace  -e trace=write -s 200 -f -p 30998
+strace  -e trace=write -s 200 -f -p 30998
