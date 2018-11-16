@@ -46,9 +46,11 @@
 
     <div id="root" style="height: 100%">
 
-        <ul class="menu" id="menu">
-            <li class="bottom" @click="refresh">刷新页面</li>
-        </ul>
+        <#if !type??>
+            <ul class="menu" id="menu">
+                <li class="bottom" @click="refresh">刷新页面</li>
+            </ul>
+        </#if>
 
         <!-- 查询输入框 -->
         <div style="display: block;text-align: center">
@@ -62,17 +64,25 @@
                 </el-select>
 
                 <div slot="append">
-                    <el-button icon="el-icon-search" @click="search" id="search" ></el-button>
-                    <el-button icon="el-icon-plus" @click="addUrl" style="margin-left: 20px" id="add"></el-button>
+                    <el-button icon="el-icon-search" @click="search" id="search"></el-button>
+
+                    <#if !type??>
+                        <el-button icon="el-icon-plus" @click="addUrl" style="margin-left: 20px" id="add"></el-button>
+                    </#if>
+
                 </div>
             </el-input>
         </div>
 
         <!-- url表格展示 -->
-        <url-table :total-data="100" :table-data="tableData" :form="form" type="search" :keyword="input"></url-table>
+        <url-table :total-data="100" :table-data="tableData" :form="form" type="search" :keyword="input" @closewindow="closewindow"
+            <#if type??>fasttype="fastType"</#if>
+        ></url-table>
 
-        <!-- url添加弹窗 -->
-        <url-add-dialog :is-show="dialogAddFormVisible" :form="form" @close="dialogAddFormVisible=false"></url-add-dialog>
+        <#if !type??>
+            <!-- url添加弹窗 -->
+            <url-add-dialog :is-show="dialogAddFormVisible" :form="form" @close="dialogAddFormVisible=false"></url-add-dialog>
+        </#if>
 
 
     </div>
@@ -135,6 +145,9 @@
             refresh(){
                 top.window.document.getElementById("searchVue").contentWindow.location.reload(true);
             },
+            closewindow(){
+                window.close();
+            }
         },
         mounted(){//生命周期函数,初始化数据使用
             var this_=this;
@@ -166,31 +179,29 @@
     },function(){
         $("#search").css("background-color","#00000000");
     });
-    $("#add").hover(function(){
-        $("#add").css("background-color","#c2defb");
-    },function(){
-        $("#add").css("background-color","#00000000");
-    });
 
 
+    <#if !type??>
+        $("#add").hover(function(){
+            $("#add").css("background-color","#c2defb");
+        },function(){
+            $("#add").css("background-color","#00000000");
+        });
 
+        document.oncontextmenu = function(e){
+            e.preventDefault();
 
+            var menu=document.getElementById("menu");
+            menu.style.left=e.clientX+'px';
+            menu.style.top=e.clientY+'px';
 
+            menu.style.visibility='visible';
 
-    document.oncontextmenu = function(e){
-        e.preventDefault();
-
-        var menu=document.getElementById("menu");
-        menu.style.left=e.clientX+'px';
-        menu.style.top=e.clientY+'px';
-
-        menu.style.visibility='visible';
-
-    }
-    window.onclick=function(e){
-        document.getElementById('menu').style.visibility='hidden';
-    }
-
+        }
+        window.onclick=function(e){
+            document.getElementById('menu').style.visibility='hidden';
+        }
+    </#if>
 
 
 </script>

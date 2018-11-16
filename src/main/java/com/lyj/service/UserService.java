@@ -27,7 +27,7 @@ public class UserService {
 
 
     public boolean isExists(User user){
-        if(StringUtil.isNotEmpty(user.getUserName())){
+        if(!StringUtil.isEmpty(user.getUserName())){
             return userDao.exists(Example.of(new User(user.getUserName())));
         }
         return false;

@@ -26,13 +26,13 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         User user = (User) session.getAttribute("user");
         //如果用户没有登入,返回登入页面
         if(user==null){
-            //设置cookie
-            String collection="";
-            Cookie cookie=new Cookie("collection",collection);
-            cookie.setMaxAge(-1);//表示在浏览器关闭是则删除cookie
-            //将cookie信息传回客户端,在进行重定向
-            //如果需要重新登入,则吧之前的参数存到cookie中,并设置失效时间,再带到登入页面,然后登入之后,在填充在输入框
-            response.addCookie(cookie);
+//            //设置cookie
+//            String collection="";
+//            Cookie cookie=new Cookie("collection",collection);
+//            cookie.setMaxAge(-1);//表示在浏览器关闭是则删除cookie
+//            //将cookie信息传回客户端,在进行重定向
+//            //如果需要重新登入,则吧之前的参数存到cookie中,并设置失效时间,再带到登入页面,然后登入之后,在填充在输入框
+//            response.addCookie(cookie);
 
             String requestWith = request.getHeader("X-Requested-With");//获取头信息,用来判断是ajax请求还是页面请求
             if("XMLHttpRequest".equals(requestWith)){//如果是ajax

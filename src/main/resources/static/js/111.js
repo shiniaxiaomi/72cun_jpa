@@ -145,3 +145,18 @@ javascript:(function (x, sc, width, height) {
     newWin.document.forms[0].submit();
     return newWin;
 })(document, screen, 1250, 660);
+
+
+javascript:(function (x, sc, width, height) {
+    var newWin = window.open('https://www.usetools.cn/collection/url', '_blank', 'toolbar=yes, location=yes, directories=no, status=no, menubar=yes, scrollbars=yes, resizable=no, copyhistory=yes, width=' + width + ', height=' + height + ',left=' + (sc.width - width) / 2 + ',top=' + (sc.height - 50 - height) / 2);
+    var formStr = '';
+    formStr = "<form style='visibility:hidden;' method='POST' action='https://www.usetools.cn/collection/url'>"+
+        "<input type='hidden' name='url' value='[url]' />"+
+        "<input type='hidden' name='title' value='[title]' />"+
+        "</form>";
+    formStr=formStr.replace('[url]', encodeURIComponent(location.href))
+        .replace('[title]', encodeURIComponent(x.title));
+    newWin.document.body.innerHTML = formStr;
+    newWin.document.forms[0].submit();
+    return newWin;
+})(document, screen, 1250, 660);

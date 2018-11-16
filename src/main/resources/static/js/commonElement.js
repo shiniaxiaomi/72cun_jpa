@@ -153,7 +153,7 @@ var urlTable={
                 </el-table-column>
                 <el-table-column label="网址链接" :show-overflow-tooltip="true">
                     <template slot-scope="scope">
-                        <span><a :href="scope.row.url" target="_blank" style="text-decoration:none">{{ scope.row.url }}</a></span>
+                        <span><a :href="scope.row.url" target="_blank" style="text-decoration:none" @click="urlClick">{{ scope.row.url }}</a></span>
                     </template>
                 </el-table-column>
                 <el-table-column label="链接位置">
@@ -215,7 +215,7 @@ var urlTable={
             
         </div>
     `,
-    props:['tableData','form','type','nodeId','keyword','currentNodeId'],
+    props:['tableData','form','type','nodeId','keyword','currentNodeId','fasttype'],
     data(){
         return{
             pageSize:this.tableData.pageSize,//一页中的条数
@@ -239,7 +239,7 @@ var urlTable={
                 location: [
                     { required: true, message: '请选择网址位置', trigger: 'blur' },
                 ],
-            }
+            },
         }
     },
     methods:{
@@ -347,6 +347,13 @@ var urlTable={
                     this_.content=data.content;
                 }
             })
+        },
+        urlClick(){
+            console.dir(this.fasttype)
+            if(this.fasttype!=""){
+                console.dir(11111111111)
+                this.$emit("closewindow");
+            }
         }
 
     },

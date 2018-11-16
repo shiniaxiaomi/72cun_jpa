@@ -92,6 +92,9 @@
         <button v-show='isRegister' class="btn btn-lg btn-primary btn-block" @click="registerClick">注册</button>
         <button v-if='isBack' class="btn btn-lg btn-primary btn-block" @click="backClick">返回</button>
 
+        <#if user??>
+            <div>检测到您已经登入,是否直接登入<button @click="passLogin">直接登入</button></div>
+        </#if>
     </div>
 
 </div>
@@ -158,6 +161,9 @@
                     });
                 }
             },
+            passLogin(){//直接登入
+                window.location.href="/user/main";
+            },
             loginClick(){
                 //进行表单验证
                 var isPass;
@@ -174,10 +180,12 @@
                     data:{userName:this.form.userName,password:this.form.password},
                     success:function (data) {
                         if(data.code==200){
-                            <#if url=="">
-                                window.location.href="/user/main";//页面跳转
+                            <#if type??>
+                                window.location.href="/fast/open";
+                            <#elseif url??>
+                                window.location.href="/fast/collection";
                             <#else>
-                                window.location.href="/collection/url";//页面跳转
+                                window.location.href="/user/main";
                             </#if>
                         }else{
                             vue.$message.error(data.message);

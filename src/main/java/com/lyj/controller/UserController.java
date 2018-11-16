@@ -1,8 +1,6 @@
 package com.lyj.controller;
 
-import com.lyj.entity.Folder;
 import com.lyj.entity.Result;
-import com.lyj.entity.URL;
 import com.lyj.entity.User;
 import com.lyj.service.FolderService;
 import com.lyj.service.URLService;
@@ -10,19 +8,13 @@ import com.lyj.service.UserService;
 import com.lyj.service.UserSettingsService;
 import com.lyj.util.ResultUtil;
 import com.lyj.util.StringUtil;
-import com.lyj.util.VarUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by 陆英杰
@@ -53,7 +45,7 @@ public class UserController {
     @ResponseBody
     @RequestMapping("/save")
     public Result save(User user){
-        if(StringUtil.isNotEmpty(user.getUserName()) && StringUtil.isNotEmpty(user.getPassword())){
+        if(!StringUtil.isEmpty(user.getUserName()) && !StringUtil.isEmpty(user.getPassword())){
             if(!userService.isExists(user)){//判断是否已经存在该用户名
                 User saveUser = userService.saveUser(user);
                 if(saveUser!=null) {//保存成功
@@ -82,6 +74,20 @@ public class UserController {
         return "main";
     }
 
+
+
+    /**
+     * 退出登入
+     *      使用redirect进行重定向 : 网页进行重定向,直接让客户端重新发起/请求
+     */
+    @RequestMapping("/exit")
+    public String exit(HttpSession session){
+        session.removeAttribute("user");//删除用户
+        return "redirect:/";
+    }
+
+
+
     /**
      * forward(转发):
      *      1.表示服务器内部进行的转发,但是浏览器上的网址却没有发生变化
@@ -99,6 +105,7 @@ public class UserController {
     @ResponseBody
     @RequestMapping("/login")
     public Result login(User user, HttpSession session){
+
         User sessionUser = (User) session.getAttribute("user");
         if(sessionUser!=null){//说明用户已经存在
             return ResultUtil.success();
@@ -113,13 +120,28 @@ public class UserController {
         }
     }
 
-    /**
-     * 退出登入
-     *      使用redirect进行重定向 : 网页进行重定向,直接让客户端重新发起/请求
-     */
-    @RequestMapping("/exit")
-    public String exit(HttpSession session){
-        session.removeAttribute("user");//删除用户
-        return "redirect:/";
-    }
+
+//    //在map中设置数据,并返回给前端,用来判断要跳转到那个快捷请求
+//    public void mapPutString(Map<String,String> map, HttpSession session, String name, String str, boolean isTrans){
+//        try {
+//            if(StringUtil.isEmpty(str)){
+//                map.put(name,"");
+//            }else {
+//                if(isTrans){
+//                    map.put(name, URLDecoder.decode(str,"utf-8"));
+//                }else {
+//                    map.put(name,str);
+//                }
+//            }
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+
+
+
+
+
+
 }
