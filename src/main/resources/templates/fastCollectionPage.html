@@ -373,7 +373,6 @@
                 .replace('[title]', encodeURIComponent(x.title));
             newWin.document.body.innerHTML = formStr;
             newWin.document.forms[0].submit();
-            return newWin;
         })(document, screen, 1250, 660);
     `;
     document.getElementById('collection').href=str;
