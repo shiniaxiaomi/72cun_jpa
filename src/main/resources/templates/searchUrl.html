@@ -158,10 +158,10 @@
 
             //请求表格数据
             util.ajax('/url/queryAllLike',{
-                'urlName':'',
+                'keywords':'',
                 'pageSize':util.pageSize,
                 'pageIndex':util.pageIndex,
-                'searchType':this.select,
+                'searchType':1,//单纯使用url类型查询
             },function (data) {
                 if(data!=null){
                     this_.tableData=data;
