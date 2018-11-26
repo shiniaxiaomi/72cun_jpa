@@ -42,6 +42,13 @@ public class URLService {
 //
 //    }
 
+    /**
+     * 根据folder的id查询url
+     * @param userId
+     * @param folder
+     * @param pageRequest
+     * @return
+     */
     public Page<URL> findByFolder(Integer userId, Folder folder, PageRequest pageRequest){
 
         return urlDao.findByFolder(userId,folder.getId(),pageRequest);
@@ -61,6 +68,13 @@ public class URLService {
         return ResultUtil.success("删除成功!");
     }
 
+    /**
+     * 查询url的标记查询url
+     * @param userId
+     * @param urlName
+     * @param pageRequest
+     * @return
+     */
     public Page<URL> queryAll(Integer userId, String urlName, PageRequest pageRequest) {
         return urlDao.findAllByUser_IdAndNameLike(userId,"%"+urlName+"%",pageRequest);
     }
@@ -76,4 +90,25 @@ public class URLService {
     }
 
 
+    /**
+     * 根据url的标记和folder的名称共同查询url
+     * @param userId
+     * @param keywords
+     * @param pageRequest
+     * @return
+     */
+    public Page<URL> queryUrlAndFolder(Integer userId, String keywords, PageRequest pageRequest) {
+        return urlDao.findAllByUser_IdAndNameLikeAndFolder_NameLike(userId,"%"+keywords+"%",pageRequest);
+    }
+
+    /**
+     * 根据folder的名字查询url
+     * @param userId
+     * @param keywords
+     * @param pageRequest
+     * @return
+     */
+    public Page<URL> findByFolder_Name(Integer userId, String keywords, PageRequest pageRequest) {
+        return urlDao.findByFolder_Name(userId,"%"+keywords+"%",pageRequest);
+    }
 }

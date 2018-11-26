@@ -44,6 +44,8 @@
 </head>
 <body>
 
+    <!-- 快速打开页面使用的也是此页面 -->
+
     <div id="root" style="height: 100%">
 
         <#if !type??>
@@ -59,8 +61,9 @@
                       :clearable="true" onkeydown="keyDown(event)"
             >
                 <el-select v-model="select" slot="prepend" placeholder="请选择">
+                    <el-option label="综合查询" value="0"></el-option>
                     <el-option label="网址名称" value="1"></el-option>
-                    <!--<el-option label="网址" value="2"></el-option>-->
+                    <el-option label="链接位置" value="2"></el-option>
                 </el-select>
 
                 <div slot="append">
@@ -101,7 +104,7 @@
         },
         data: {
             input: '',
-            select: '1',//默认选中网址名称
+            select: '0',//默认选中网址名称
             dialogAddFormVisible:false,//是否显示添加弹窗
             form:{
                 id:'',
@@ -127,9 +130,10 @@
                     this_.ajaxFinished=false;
                     console.dir(this_.input)
                     util.ajax('/url/queryAllLike',{
-                        'urlName':this_.input,
+                        'keywords':this_.input,
                         'pageSize':util.pageSize,
-                        'pageIndex':util.pageIndex
+                        'pageIndex':util.pageIndex,
+                        'searchType':this.select,
                     },function (data) {
                         if(data!=null){
                             searchVue.tableData=data;
@@ -156,7 +160,8 @@
             util.ajax('/url/queryAllLike',{
                 'urlName':'',
                 'pageSize':util.pageSize,
-                'pageIndex':util.pageIndex
+                'pageIndex':util.pageIndex,
+                'searchType':this.select,
             },function (data) {
                 if(data!=null){
                     this_.tableData=data;

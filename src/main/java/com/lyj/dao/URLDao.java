@@ -26,6 +26,8 @@ public interface URLDao extends JpaRepository<URL,Integer>{
     @Query("select new URL(url.id,url.name,url.url,url.createTime,folder.id,folder.name)  from URL url join url.user user join url.folder folder where user.id=:userId and folder.id=:folderId")
     Page<URL> findByFolder(@Param("userId") Integer userId,@Param("folderId") Integer folderId,Pageable pageable);
 
+    @Query("select new URL(url.id,url.name,url.url,url.createTime,folder.id,folder.name)  from URL url join url.user user join url.folder folder where user.id=:userId and folder.name like :keywords")
+    Page<URL> findByFolder_Name(@Param("userId") Integer userId,@Param("keywords") String keywords,Pageable pageable);
 
     @Modifying
     @Query(value = "update url set name=:name,url=:url,folder_id=:pid where id=:id and user_id=:userId",nativeQuery = true)
@@ -39,6 +41,9 @@ public interface URLDao extends JpaRepository<URL,Integer>{
             "join url.folder folder where user.id=:userId and url.name like :urlName")
     Page<URL> findAllByUser_IdAndNameLike(@Param("userId") Integer userId, @Param("urlName") String urlName, Pageable pageable);
 
+    @Query("select new URL(url.id,url.name,url.url,url.createTime,folder.id,folder.name) from URL url join url.user user " +
+            "join url.folder folder where user.id=:userId and (url.name like :keywords or folder.name like :keywords)")
+    Page<URL> findAllByUser_IdAndNameLikeAndFolder_NameLike(@Param("userId") Integer userId, @Param("keywords") String keywords, Pageable pageable);
 
 //    @Modifying
 //    public void deleteByFolder_IdAndUser_Id(Integer folderId,Integer userId);
